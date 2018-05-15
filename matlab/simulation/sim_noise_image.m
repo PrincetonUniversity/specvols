@@ -25,7 +25,7 @@ function im = sim_noise_image(sim, start, num)
     for s = start:start+num-1
         rand_state(sim.noise_seed + 191*s);
 
-        im_s = sqrt(sim.noise)*randn(sim.L*ones(1, 2));
+        im_s = sqrt(sim.noise_var)*randn(sim.L*ones(1, 2));
 
         im(:,:,s-start+1) = im_s;
     end

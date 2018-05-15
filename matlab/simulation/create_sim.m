@@ -32,7 +32,7 @@
 %          the images (default uniformly sampled between 2/3 and 3/2),
 %       - noise_seed: the random seed for generating the noise in the images
 %           (default 0), and
-%       - noise: the variance of the noise in the images (default 1).
+%       - noise_var: the variance of the noise in the images (default 1).
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
@@ -53,7 +53,7 @@ function sim = create_sim(sim)
         'offsets', [], ...
         'amplitudes', [], ...
         'noise_seed', 0, ...
-        'noise', 1);
+        'noise_var', 1);
 
     if isempty(sim.vols)
         rand_push(0);
