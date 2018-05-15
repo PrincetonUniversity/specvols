@@ -110,11 +110,8 @@ function install_cims_nufft(url, location, force_compile)
 
     cd(nufft_root);
     try
-        if isoctave(), clear functions; end
         nufft1d1(1, 0, 0, 1, 1, 1);
-        if isoctave(), clear functions; end
         nufft2d1(1, 0, 0, 0, 1, 1, 1, 1);
-        if isoctave(), clear functions; end
         nufft3d1(1, 0, 0, 0, 0, 1, 1, 1, 1, 1);
         fprintf('MEX files are working.\n');
     catch
@@ -131,11 +128,8 @@ function install_cims_nufft(url, location, force_compile)
         system('rm *.o');
 
         try
-            if isoctave(), clear functions; end
             nufft1d1(1, 0, 0, 1, 1, 1);
-            if isoctave(), clear functions; end
             nufft2d1(1, 0, 0, 0, 1, 1, 1, 1);
-            if isoctave(), clear functions; end
             nufft3d1(1, 0, 0, 0, 0, 1, 1, 1, 1, 1);
             fprintf('MEX files are working.\n');
         catch
