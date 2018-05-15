@@ -5,7 +5,7 @@
 %       precond_kernel_f, mean_est_opt);
 %
 % Input
-%    mean_kernel_f: The centered Fourier transform of the projection-
+%    mean_kernel_f: The non-centered Fourier transform of the projection-
 %       backprojection operator obtained from `src_mean_kernel`.
 %    mean_b: An array of size L-by-L-by-L containing the backprojected images
 %       obtained from `src_mean_backward`.

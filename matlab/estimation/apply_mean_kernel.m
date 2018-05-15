@@ -5,9 +5,9 @@
 %
 % Input
 %    vol_coeff: The volume to be convolved, stored in the basis coefficients.
-%    kernel_f: The centered Fourier transform of the convolution kernel
+%    kernel_f: The non-centered Fourier transform of the convolution kernel
 %       representing the mean projection-backprojection operator as obtained
-%       from `params_mean_kernel`.
+%       from `src_mean_kernel`.
 %    basis: A basis object corresponding to the basis used to store
 %       `vol_coeff`.
 %    mean_est_opt: An options structure. Currently no options are used.
