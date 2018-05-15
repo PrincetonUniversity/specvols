@@ -1,3 +1,8 @@
+% TEST_NUFFT_WRAPPERS Test performance of available NUFFT libraries
+%
+% Usage
+%    test_nufft_wrappers();
+
 N = 10;
 M = 87;
 

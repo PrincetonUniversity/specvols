@@ -1,7 +1,7 @@
 % FB_BASIS_EVALUATE_T Evaluate coefficient in dual Fourier-Bessel basis
 %
 % Usage
-%    v = fb_basis_evaluate(basis, x);
+%    v = fb_basis_evaluate_t(basis, x);
 %
 % Input/Output
 %    See documentation for `basis_evaluate_t`.

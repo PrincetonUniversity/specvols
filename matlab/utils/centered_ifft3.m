@@ -1,7 +1,7 @@
-% CENTERED_FFT3 Calculate a centered, three-dimensional inverse FFT
+% CENTERED_IFFT3 Calculate a centered, three-dimensional inverse FFT
 %
 % Usage
-%    x = centered_ifft2(x_f);
+%    x = centered_ifft3(x_f);
 %
 % Input
 %    x_f: The three-dimensional signal to be transformed. The inverse FFT is

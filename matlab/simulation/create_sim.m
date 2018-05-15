@@ -1,4 +1,4 @@
-% CREATE_SIMULATION Create cryo-EM simulation
+% CREATE_SIM Create cryo-EM simulation
 %
 % Usage
 %    sim = create_sim(sim_params);

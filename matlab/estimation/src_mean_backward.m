@@ -1,4 +1,4 @@
-% PARAMS_MEAN_BACKWARD Apply adjoint mapping to source
+% SRC_MEAN_BACKWARD Apply adjoint mapping to source
 %
 % Usage
 %    mean_b = src_mean_backward(src, mean_est_opt);

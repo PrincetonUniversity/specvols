@@ -1,4 +1,4 @@
-% VECMAT_TO_VOLMAT Converts a vectorized volume matrix into a volume matrix
+% VEC_TO_VOLMAT Converts a vectorized volume matrix into a volume matrix
 %
 % Usage
 %    volmat = vec_to_volmat(vec);

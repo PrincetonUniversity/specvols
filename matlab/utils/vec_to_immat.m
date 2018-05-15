@@ -1,4 +1,4 @@
-% VECMAT_TO_IMMAT Converts a vectorized image matrix into a image matrix
+% VEC_TO_IMMAT Converts a vectorized image matrix into a image matrix
 %
 % Usage
 %    immat = vec_to_immat(vec);

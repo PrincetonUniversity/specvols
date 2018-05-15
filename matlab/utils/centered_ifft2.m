@@ -1,4 +1,4 @@
-% CENTERED_FFT2 Calculate a centered, two-dimensional inverse FFT
+% CENTERED_IFFT2 Calculate a centered, two-dimensional inverse FFT
 %
 % Usage
 %    x = centered_ifft2(x_f);

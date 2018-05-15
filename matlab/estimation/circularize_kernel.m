@@ -1,4 +1,4 @@
-% CIRCULARIZE_KERNEL_F Calculate circulant approximation of Fourier kernel
+% CIRCULARIZE_KERNEL Calculate circulant approximation of Fourier kernel
 %
 % Usage
 %    kernel_circ_f = circularize_kernel(kernel_f);

@@ -1,4 +1,4 @@
-% DOWNSAMPLE_SOURCE
+% DOWNSAMPLE_SRC Blur and downsample source
 %
 % Usage
 %    src = downsample_src(original_src, L);

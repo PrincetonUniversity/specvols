@@ -1,4 +1,4 @@
-% PARAMS_MEAN_KERNEL Calculate mean estimation kernel from parameters
+% SRC_MEAN_KERNEL Calculate mean estimation kernel from source
 %
 % Usage
 %    mean_kernel_f = src_mean_kernel(src, mean_est_opt);
