@@ -48,5 +48,7 @@ function im = src_image(src, s, n)
         im_original = src_image(src.original_src, s, n);
 
         im = im_downsample(im_original, src.L);
+    elseif src.type == src_type_array()
+        im = src.images(:,:,s:s+n-1);
     end
 end
