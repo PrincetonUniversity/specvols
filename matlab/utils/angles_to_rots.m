@@ -10,6 +10,7 @@
 %    rots: Corresponding rotation matrices in a 3-by-3-by-n array.
 
 % TODO: Specify which convention is used in the documentation.
+% TODO: Speed up calculation by vectorizing sin, cos calls.
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>

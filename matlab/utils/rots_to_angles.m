@@ -11,6 +11,7 @@
 %    angles: The corresponding Euler angles.
 
 % TODO: Specify which convention is used in the documentation.
+% TODO: Speed up calculation by vectorizing atan2, acos calls.
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
