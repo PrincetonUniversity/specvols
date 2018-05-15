@@ -73,7 +73,7 @@ function mean_kernel_f = src_mean_kernel(src, mean_est_opt)
         weights = reshape(weights, L^2*batch_n, 1);
 
         mean_kernel = mean_kernel + ...
-            1/n*real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
+            1/(n*L^4)*real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
     end
 
     % Ensure symmetric kernel.
