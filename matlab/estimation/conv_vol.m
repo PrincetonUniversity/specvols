@@ -6,8 +6,8 @@
 % Input
 %    vol: An N-by-N-by-N-by-... array of volumes to be convolved.
 %    kernel_f: The Fourier transform of the cubic convolution kernel. Must be
-%       larger than vol in the first three dimensions. This must also be a
-%       centered Fourier transform.
+%       larger than vol in the first three dimensions. This is a non-centered
+%       Fourier transform. That is, the zero frequency is found at index 1.
 %
 % Output
 %    vol: The original volumes convolved by the kernel with the same dimensions
@@ -32,8 +32,6 @@ function x = conv_vol(x, kernel_f)
     if any(size(kernel_f) ~= N_ker)
         error('Convolution kernel `kernel_f` must be cubic.');
     end
-
-    kernel_f = ifftshift(ifftshift(ifftshift(kernel_f, 1), 2), 3);
 
     if is_singleton
         x = fftn(x, N_ker*ones(1, 3));

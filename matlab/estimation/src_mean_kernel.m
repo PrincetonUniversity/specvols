@@ -13,11 +13,13 @@
 %             kernel (default 512).
 %
 % Output
-%    mean_kernel_f: A 2*L-by-2*L-by-2*L array containing the centered Fourier
-%       transform of the mean least-squares estimator kernel. Convolving a
-%       volume with this kernel is equal to projecting and backprojecting
-%       that volume in each of the projection directions (with the appropriate
-%       amplitude multipliers and CTFs) and averaging over the whole dataset.
+%    mean_kernel_f: A 2*L-by-2*L-by-2*L array containing the non-centered
+%       Fourier transform of the mean least-squares estimator kernel. Convol-
+%       ving a volume with this kernel is equal to projecting and backproject-
+%       ing that volume in each of the projection directions (with the appro-
+%       priate amplitude multipliers and CTFs) and averaging over the whole
+%       dataset. Note that this is a non-centered Fourier transform, so the
+%       zero frequency is found at index 1.
 %
 % See also
 %    src_mean_backward
@@ -79,7 +81,9 @@ function mean_kernel_f = src_mean_kernel(src, mean_est_opt)
     mean_kernel(:,1,:) = 0;
     mean_kernel(:,:,1) = 0;
 
-    mean_kernel_f = centered_ifft3(mean_kernel);
+    % Compute non-centered Fourier transform.
+    mean_kernel = mdim_ifftshift(mean_kernel, 1:3);
+    mean_kernel_f = fft3(mean_kernel);
 
     % Kernel is always symmetric in spatial domain and therefore real in
     % Fourier.
