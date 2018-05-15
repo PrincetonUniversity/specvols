@@ -1,4 +1,18 @@
 % DOWNSAMPLE_SOURCE
+%
+% Usage
+%    src = downsample_src(original_src, L);
+%
+% Input
+%    original_src: A source whose images are to be downsampled.
+%    L: The desired resolution of those images. Must be smaller than `src.L`.
+%
+% Output
+%    src: A source containing the images as the source, but downsampled to
+%       resolution `L`.
+%
+% See also
+%    im_downsample
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
