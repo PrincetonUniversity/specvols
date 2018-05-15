@@ -35,7 +35,9 @@ function sig_f = nufft_transform(plan, sig)
         error('Input ''sig'' must be of size plan.sz.');
     end
 
-    epsilon = max(plan.epsilon, eps(class(sig)));
+    precision = class(sig);
+
+    epsilon = max(plan.epsilon, eps(precision));
 
     if plan.lib_code == 1
         if dims == 1
@@ -110,5 +112,5 @@ function sig_f = nufft_transform(plan, sig)
         end
     end
 
-    sig_f = cast(sig_f, class(sig));
+    sig_f = cast(sig_f, precision);
 end

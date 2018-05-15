@@ -29,7 +29,9 @@ function sig = nufft_adjoint(plan, sig_f)
         error('Input ''sig_f'' must be of size plan.num_pts-by-1.');
     end
 
-    epsilon = max(plan.epsilon, eps(class(sig_f)));
+    precision = class(sig_f);
+
+    epsilon = max(plan.epsilon, eps(precision));
 
     if plan.lib_code == 1
         if dims == 1
@@ -116,5 +118,5 @@ function sig = nufft_adjoint(plan, sig_f)
         sig = reshape(sig, [plan.sz 1]);
     end
 
-    sig = cast(sig, class(sig_f));
+    sig = cast(sig, precision);
 end
