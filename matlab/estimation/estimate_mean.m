@@ -13,6 +13,9 @@
 %             'single' (default).
 %          - 'batch_size': The size of the batches in which to compute the
 %             kernel (default 512).
+%          - 'regularizer': The regularizer parameter for the least-squares
+%             problem. This is a positive number that determines how much
+%             the least-squares solution is to be regularized (default 0).
 %          - 'preconditioner': One of the following values specifying the
 %             preconditioner for the conjugate gradient method:
 %                - 'none': No preconditioner is used.
@@ -29,12 +32,13 @@
 %    mean_est: The estimated mean volume, in the form of an L-by-L-by-L array.
 %       It minimizes the objective
 %
-%          1/n sum_{s=1}^n |P_s x - y_s|^2 ,
+%          1/n sum_{s=1}^n |P_s x - y_s|^2 + lambda | x |^2,
 %
 %       where x is the volume, P_s are the imaging mappings (basis evaluation,
-%       projection, CTF filtering, translation, scaling), and y_s are the
+%       projection, CTF filtering, translation, scaling), lambdas is the
+%       regularization parameter `mean_est_opt.regularizer`, and y_s are the
 %       observed images. This is achieved by forming the normal equations and
-%       solving them using the conjugate gradient method.
+%       solving them using the preconditioned conjugate gradient method.
 %    cg_info: A structure containing information about the conjugate gradient
 %       method, such as residuals, objectives, etc. See the documentation of
 %       `conj_grad` for more details.

@@ -14,16 +14,20 @@
 %    precond_kernel_f: If not empty, the Fourier transform of a kernel that is
 %       used to precondition the projection-backprojection operator (default
 %       empty).
-%    mean_est_opt: An options structure. No options are used in the function
-%       itself, but it is passed on to the `conj_grad` function, so any options
-%       for that function should be specified here.
-%
+%    mean_est_opt: A struct containing the fields:
+%          - 'regularizer': The regularizer parameter for the least-squares
+%             problem. This is a positive number that determines how much
+%             the least-squares solution is to be regularized (default 0).
+%       The struct is also passed on to the `conj_grad` function, so any
+%       options to that function should be passed here.
 % Output
 %    mean_est: An array of size L-by-L-by-L containing the least-squares
-%       estimate obtained by solving the equation A*x = b, where A is the
-%       linear mapping represented by convolving with `mean_kernel_f` and b
-%       are the backprojected images `mean_b`. The equation is solved using the
-%       conjugate gradient method implemented by `conj_grad`.
+%       estimate obtained by solving the equation (A + lambda I)*x = b, where
+%       A is the linear mapping represented by convolving with `mean_kernel_f`,
+%       lambda is the regularization parameter `mean_est_opt.regularizer`, and
+%       b is the sum of backprojected images `mean_b`. The equation is solved
+%       using the preconditioned conjugate gradient method implemented by
+%       `conj_grad`.
 %    cg_info: A structure containing information about the conjugate gradient
 %       method, such as residuals, objectives, etc. See the documentation of
 %       `conj_grad` for more details.
@@ -46,6 +50,9 @@ function [mean_est, cg_info] = conj_grad_mean(mean_kernel_f, mean_b, basis, ...
         mean_est_opt = struct();
     end
 
+    mean_est_opt = fill_struct(mean_est_opt, ...
+        'regularizer', 0);
+
     L = size(mean_b, 1);
 
     if isempty(basis)
@@ -59,6 +66,16 @@ function [mean_est, cg_info] = conj_grad_mean(mean_kernel_f, mean_b, basis, ...
     if ~is_basis(basis) || any(basis.sz ~= L*ones(1, 3))
         error(['Input `basis` must be a basis object representing ' ...
             'volumes of size L-by-L-by-L.']);
+    end
+
+    if mean_est_opt.regularizer > 0
+        mean_kernel_f = mean_kernel_f + ...
+            mean_est_opt.regularizer*ones(size(mean_kernel_f));
+
+        if ~isempty(precond_kernel_f)
+            precond_kernel_f = precond_kernel_f + ...
+                mean_est_opt.regularizer*ones(size(precond_kernel_f));
+        end
     end
 
     kernel_fun = @(vol_coeff)( ...

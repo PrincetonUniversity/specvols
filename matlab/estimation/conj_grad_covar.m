@@ -15,17 +15,21 @@
 %    precond_kernel_f: If not empty, the Fourier transform of a kernel that is
 %       used to precondition the covariance projection-backprojection operator
 %       (default empty).
-%    covar_est_opt: An options structure. No options are used in the function
-%       itself, but it is passed on to the `conj_grad` function, so any options
-%       for that function should be specified here.
+%    covar_est_opt: A struct containing the fields:
+%          - 'regularizer': The regularizer parameter for the least-squares
+%             problem. This is a positive number that determines how much
+%             the least-squares solution is to be regularized (default 0).
+%       The struct is also passed on to the `conj_grad` function, so any
+%       options to that function should be passed here.
 %
 % Output
 %    covar_est: A volume matrix of size L-by-L-by-L-by-L-by-L-by-L containing
-%       the least-squares estimate obtained by solving the eqation L(X) = B,
-%       where A is the covariance projection-backprojection operator represented
-%       by `covar_kernel_f` and B are the backprojected covariance estimates in
-%       `covar_b`. The equation is solved using the conjugate gradient method
-%       implemented by `conj_grad`.
+%       the least-squares estimate obtained by solving the equation
+%       L(X) + lambda X = B, where L is the covariance projection-backprojec-
+%       tion operator represented by `covar_kernel_f`, lambda is the regulariza-
+%       tion parameter `covar_est_opt.lambda`, and B is the sum of backproject-
+%       ed covariance estimates in `covar_b`. The equation is solved using the
+%       preconditioned conjugate gradient method implemented by `conj_grad`.
 %    cg_info: A structure containing information about the conjugate gradient
 %       method, such as residuals, objectives, etc. See the documentation of
 %       `conj_grad` for more details.
@@ -48,6 +52,9 @@ function [covar_est, cg_info] = conj_grad_covar(covar_kernel_f, covar_b, ...
         covar_est_opt = struct();
     end
 
+    covar_est_opt = fill_struct(covar_est_opt, ...
+        'regularizer', 0);
+
     L = size(covar_b, 1);
 
     if isempty(basis)
@@ -62,6 +69,16 @@ function [covar_est, cg_info] = conj_grad_covar(covar_kernel_f, covar_b, ...
     if ~is_basis(basis) || any(basis.sz ~= L*ones(1, 3))
         error(['Input `basis` must be a basis object representing ' ...
             'volumes of size L-by-L-by-L.']);
+    end
+
+    if covar_est_opt.regularizer > 0
+        covar_kernel_f = covar_kernel_f + ...
+            covar_est_opt.regularizer*ones(size(covar_kernel_f));
+
+        if ~isempty(precond_kernel_f)
+            precond_kernel_f = precond_kernel_f + ...
+                covar_est_opt.regularizer*ones(size(precond_kernel_f));
+        end
     end
 
     kernel_fun = @(covar_coeff, kernel_f)(symmat_to_vec_iso( ...
