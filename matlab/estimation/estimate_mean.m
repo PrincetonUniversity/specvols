@@ -73,7 +73,7 @@ function [mean_est, cg_info] = estimate_mean(src, basis, mean_est_opt)
         if strcmp(mean_est_opt.preconditioner, 'none')
             precond_kernel_f = [];
         elseif strcmp(mean_est_opt.preconditioner, 'circulant')
-            precond_kernel_f = 1./circularize_kernel(kernel_f);
+            precond_kernel_f = circularize_kernel(kernel_f);
         else
             error('Invalid preconditioner type.');
         end

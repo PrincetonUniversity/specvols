@@ -78,7 +78,7 @@ function covar_est = estimate_covar(src, mean_vol, noise_var, basis, ...
         if strcmp(covar_est_opt.preconditioner, 'none')
             precond_kernel_f = [];
         elseif strcmp(covar_est_opt.preconditioner, 'circulant')
-            precond_kernel_f = 1./circularize_kernel(kernel_f);
+            precond_kernel_f = circularize_kernel(kernel_f);
         else
             error('Invalid preconditioner type.');
         end

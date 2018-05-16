@@ -72,7 +72,7 @@ function [covar_est, cg_info] = conj_grad_covar(covar_kernel_f, covar_b, ...
 
     if ~isempty(precond_kernel_f)
         precond_kernel_fun = ...
-            @(covar_coeff)(kernel_fun(covar_coeff, precond_kernel_f));
+            @(covar_coeff)(kernel_fun(covar_coeff, 1./precond_kernel_f));
 
         covar_est_opt.preconditioner = precond_kernel_fun;
     end
