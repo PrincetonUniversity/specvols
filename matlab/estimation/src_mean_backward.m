@@ -1,11 +1,12 @@
 % SRC_MEAN_BACKWARD Apply adjoint mapping to source
 %
 % Usage
-%    mean_b = src_mean_backward(src, mean_est_opt);
+%    mean_b_coeff = src_mean_backward(src, basis, mean_est_opt);
 %
 % Input
 %    src: A source structure containing the images and imaging parameters.
 %       This is typically obtained from `star_to_src` or `sim_to_src`.
+%    basis: A basis object used for representing the volumes.
 %    mean_est_opt: A struct containing the fields:
 %          - 'precision': The precision of the kernel. Either 'double' or
 %             'single' (default).
@@ -13,8 +14,8 @@
 %             kernel (default 512).
 %
 % Output
-%    mean_b: The adjoint mapping applied to the images, averaged over the
-%       whole dataset.
+%    mean_b_coeff: The adjoint mapping applied to the images, averaged over
+%       the whole dataset and expressed as coefficients of `basis`.
 %
 % See also
 %    im_backward, src_mean_kernel
@@ -22,8 +23,8 @@
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function mean_b = src_mean_backward(src, mean_est_opt)
-    if nargin < 2 || isempty(mean_est_opt)
+function mean_b_coeff = src_mean_backward(src, basis, mean_est_opt)
+    if nargin < 3 || isempty(mean_est_opt)
         mean_est_opt = struct();
     end
 
@@ -54,4 +55,6 @@ function mean_b = src_mean_backward(src, mean_est_opt)
 
         mean_b = mean_b + batch_mean_b;
     end
+
+    mean_b_coeff = basis_evaluate_t(basis, mean_b);
 end

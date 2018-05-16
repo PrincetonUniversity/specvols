@@ -92,8 +92,11 @@ function covar_est = estimate_covar(src, mean_vol, noise_var, basis, ...
         covar_est_opt.preconditioner = @(x)(x);
     end
 
-    b = src_covar_backward(src, mean_vol, noise_var, covar_est_opt);
+    b_coeff = src_covar_backward(src, basis, mean_vol, noise_var, ...
+       covar_est_opt);
 
-    [covar_est, cg_info] = conj_grad_covar(kernel_f, b, basis, ...
+    [covar_est_coeff, cg_info] = conj_grad_covar(kernel_f, b_coeff, basis, ...
         precond_kernel_f, covar_est_opt);
+
+    covar_est = basis_mat_evaluate(basis, covar_est_coeff);
 end

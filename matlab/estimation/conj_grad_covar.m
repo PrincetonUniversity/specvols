@@ -1,17 +1,15 @@
 % CONJ_GRAD_COVAR Solve for volume covariance using conjugate gradient method
 %
 % Usage
-%    [covar_est, cg_info] = conj_grad_covar(covar_kernel_f, covar_b, ...
-%        basis, precond_kernel_f, covar_est_opt);
+%    [covar_est_coeff, cg_info] = conj_grad_covar(covar_kernel_f, ...
+%        covar_b_coeff, basis, precond_kernel_f, covar_est_opt);
 %
 % Input
 %    covar_kernel_f: The non-centered Fourier transform of the covariance
 %       projection-backprojection operator obtained from `src_covar_kernel`.
-%    covar_b: An volume matrix of size L-by-L-by-L-by-L-by-L-by-L containing
-%       the backprojected covariance estimates obtained from
-%       `src_covar_backward`.
-%    basis: A basis object used for representing the volumes (default
-%       `dirac_basis(L*ones(1, 3))`).
+%    covar_b_coeff: A matrix of backprojected covariance estimates, expressed
+%       as coefficients in a basis, obtained from `src_covar_backward`.
+%    basis: A basis object used for representing the volumes.
 %    precond_kernel_f: If not empty, the Fourier transform of a kernel that is
 %       used to precondition the covariance projection-backprojection operator
 %       (default empty).
@@ -23,13 +21,14 @@
 %       options to that function should be passed here.
 %
 % Output
-%    covar_est: A volume matrix of size L-by-L-by-L-by-L-by-L-by-L containing
-%       the least-squares estimate obtained by solving the equation
-%       L(X) + lambda X = B, where L is the covariance projection-backprojec-
-%       tion operator represented by `covar_kernel_f`, lambda is the regulariza-
-%       tion parameter `covar_est_opt.lambda`, and B is the sum of backproject-
-%       ed covariance estimates in `covar_b`. The equation is solved using the
-%       preconditioned conjugate gradient method implemented by `conj_grad`.
+%    covar_est_coeff: A matrix of size `basis.count`-by-`basis.count` contain-
+%       ing the basis coefficients of the least-squares estimate obtained by
+%       solving the equation L(X) + lambda X = B, where L is the covariance
+%       projection-backprojection operator represented by `covar_kernel_f`,
+%       lambda is the regularization parameter `covar_est_opt.lambda`, and B
+%       is the sum of backprojected covariance estimates in `covar_b`, ex-
+%       pressed in `basis`. The equation is solved using the preconditioned
+%       conjugate gradient method implemented by `conj_grad`.
 %    cg_info: A structure containing information about the conjugate gradient
 %       method, such as residuals, objectives, etc. See the documentation of
 %       `conj_grad` for more details.
@@ -37,12 +36,8 @@
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function [covar_est, cg_info] = conj_grad_covar(covar_kernel_f, covar_b, ...
-    basis, precond_kernel_f, covar_est_opt)
-
-    if nargin < 3
-        basis = [];
-    end
+function [covar_est_coeff, cg_info] = conj_grad_covar(covar_kernel_f, ...
+    covar_b_coeff, basis, precond_kernel_f, covar_est_opt)
 
     if nargin < 4
         precond_kernel_f = [];
@@ -55,20 +50,15 @@ function [covar_est, cg_info] = conj_grad_covar(covar_kernel_f, covar_b, ...
     covar_est_opt = fill_struct(covar_est_opt, ...
         'regularizer', 0);
 
-    L = size(covar_b, 1);
+    if ndims(covar_b_coeff) ~= 2 || ...
+        size(covar_b_coeff, 1) ~= size(covar_b_coeff, 2)
 
-    if isempty(basis)
-        basis = dirac_basis(L*ones(1, 3));
+        error(['Input `covar_b_coeff` must be a matrix.']);
     end
 
-    if ndims(covar_b) ~= 6 || any(size(covar_b) ~= L)
-        error(['Input `covar_b` must be a volume matrix of size ' ...
-            'L-by-L-by-L-by-L-by-L-by-L.']);
-    end
-
-    if ~is_basis(basis) || any(basis.sz ~= L*ones(1, 3))
-        error(['Input `basis` must be a basis object representing ' ...
-            'volumes of size L-by-L-by-L.']);
+    if ~is_basis(basis) || basis.count ~= size(covar_b_coeff, 1)
+        error(['Input `basis` must be a basis object compatible with ' ...
+            '`covar_b_coeff`.']);
     end
 
     if covar_est_opt.regularizer > 0
@@ -94,10 +84,10 @@ function [covar_est, cg_info] = conj_grad_covar(covar_kernel_f, covar_b, ...
         covar_est_opt.preconditioner = precond_kernel_fun;
     end
 
-    covar_b_coeff = symmat_to_vec_iso(basis_mat_evaluate_t(basis, covar_b));
+    covar_b_coeff = symmat_to_vec_iso(covar_b_coeff);
 
     [covar_est_coeff, ~, cg_info] = ...
         conj_grad(covar_kernel_fun, covar_b_coeff, covar_est_opt);
 
-    covar_est = basis_mat_evaluate(basis, vec_to_symmat_iso(covar_est_coeff));
+    covar_est_coeff = vec_to_symmat_iso(covar_est_coeff);
 end

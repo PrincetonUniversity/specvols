@@ -1,13 +1,15 @@
 % SRC_COVAR_BACKWARD Apply adjoint covariance mapping to source
 %
 % Usage
-%    covar_b = src_covar_backward(src, mean_vol, noise_var, covar_est_opt);
+%    covar_b_coeff = src_covar_backward(src, basis, mean_vol, noise_var, ...
+%       covar_est_opt);
 %
 % Input
 %    src: A source structure containing the images and imaging parameters.
 %       This is typically obtained from `star_to_src` or `sim_to_src`.
-%    mean_vol: The (estimated) mean volume of the source. This can be estimated
-%       using `estimate_mean`.
+%    basis: A basis object used for representing the volumes.
+%    mean_vol: The (estimated) mean volume of the source as an L-by-L-by-L
+%       array. This can be estimated using `estimate_mean`.
 %    noise_var: The variance of the noise.
 %    covar_est_opt: A struct containing the fields:
 %          - 'precision': The precision of the kernel. Either 'double' or
@@ -16,16 +18,17 @@
 %             kernel (default 512).
 %
 % Output
-%    covar_b: The sum of the outer products of the mean-subtracted images in
-%       `src`, corrected by the expected noise contribution.
+%    covar_b_coeff: The sum of the outer products of the mean-subtracted
+%       images in `src`, corrected by the expected noise contribution and
+%       expressed as coefficients of `basis`.
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function covar_b = src_covar_backward(src, mean_vol, noise_var, ...
-    covar_est_opt)
+function covar_b_coeff = src_covar_backward(src, basis, mean_vol, ...
+    noise_var, covar_est_opt)
 
-    if nargin < 4 || isempty(covar_est_opt)
+    if nargin < 5 || isempty(covar_est_opt)
         covar_est_opt = struct();
     end
 
@@ -60,4 +63,6 @@ function covar_b = src_covar_backward(src, mean_vol, noise_var, ...
     covar_b_noise = noise_var*kernel_to_toeplitz(mean_kernel_f);
 
     covar_b = covar_b - covar_b_noise;
+
+    covar_b_coeff = basis_mat_evaluate_t(basis, covar_b);
 end

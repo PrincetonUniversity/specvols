@@ -1,16 +1,16 @@
 % CONJ_GRAD_MEAN Solve for mean volume using conjugate gradient method
 %
 % Usage
-%    mean_est = conj_grad_mean(mean_kernel_f, mean_b, basis, ...
+%    mean_est_coeff = conj_grad_mean(mean_kernel_f, mean_b_coeff, basis, ...
 %       precond_kernel_f, mean_est_opt);
 %
 % Input
 %    mean_kernel_f: The non-centered Fourier transform of the projection-
 %       backprojection operator obtained from `src_mean_kernel`.
-%    mean_b: An array of size L-by-L-by-L containing the backprojected images
-%       obtained from `src_mean_backward`.
-%    basis: A basis object used for representing the volumes (default
-%       `dirac_basis(L*ones(1, 3))`).
+%    mean_b_coeff: An column vector containing the backprojected images
+%       obtained from `src_mean_backward`, represented as coefficients in a
+%       basis.
+%    basis: The basis object used for representing the volumes.
 %    precond_kernel_f: If not empty, the Fourier transform of a kernel that is
 %       used to precondition the projection-backprojection operator (default
 %       empty).
@@ -21,13 +21,14 @@
 %       The struct is also passed on to the `conj_grad` function, so any
 %       options to that function should be passed here.
 % Output
-%    mean_est: An array of size L-by-L-by-L containing the least-squares
-%       estimate obtained by solving the equation (A + lambda I)*x = b, where
-%       A is the linear mapping represented by convolving with `mean_kernel_f`,
-%       lambda is the regularization parameter `mean_est_opt.regularizer`, and
-%       b is the sum of backprojected images `mean_b`. The equation is solved
-%       using the preconditioned conjugate gradient method implemented by
-%       `conj_grad`.
+%    mean_est_coeff: A vector of length `basis.count` containing the basis
+%       coefficients of the least-squares estimate obtained by solving the
+%       equation (A + lambda I)*x = b, where A is the linear mapping
+%       represented by convolving with `mean_kernel_f`, lambda is the regular-
+%       ization parameter `mean_est_opt.regularizer`, and b is the sum of
+%       backprojected images `mean_b_coeff`, expressed in `basis`. The equa-
+%       tion is solved using the preconditioned conjugate gradient method
+%       implemented by `conj_grad`.
 %    cg_info: A structure containing information about the conjugate gradient
 %       method, such as residuals, objectives, etc. See the documentation of
 %       `conj_grad` for more details.
@@ -35,12 +36,8 @@
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function [mean_est, cg_info] = conj_grad_mean(mean_kernel_f, mean_b, basis, ...
-    precond_kernel_f, mean_est_opt)
-
-    if nargin < 3
-        basis = [];
-    end
+function [mean_est_coeff, cg_info] = conj_grad_mean(mean_kernel_f, ...
+    mean_b_coeff, basis, precond_kernel_f, mean_est_opt)
 
     if nargin < 4
         precond_kernel_f = [];
@@ -53,19 +50,13 @@ function [mean_est, cg_info] = conj_grad_mean(mean_kernel_f, mean_b, basis, ...
     mean_est_opt = fill_struct(mean_est_opt, ...
         'regularizer', 0);
 
-    L = size(mean_b, 1);
-
-    if isempty(basis)
-        basis = dirac_basis(L*ones(1, 3));
+    if ndims(mean_b_coeff) ~= 2 || size(mean_b_coeff, 2) ~= 1
+        error('Input `mean_b_coeff` must be a column vector.');
     end
 
-    if ndims(mean_b) ~= 3 || size(mean_b, 2) ~= L || size(mean_b, 3) ~= L
-        error('Input `mean_b` must be a volume of size L-by-L-by-L.');
-    end
-
-    if ~is_basis(basis) || any(basis.sz ~= L*ones(1, 3))
-        error(['Input `basis` must be a basis object representing ' ...
-            'volumes of size L-by-L-by-L.']);
+    if ~is_basis(basis) || any(basis.count ~= size(mean_b_coeff, 1))
+        error(['Input `basis` must be a basis object compatible with ' ...
+            '`mean_b_coeff`.']);
     end
 
     if mean_est_opt.regularizer > 0
@@ -89,10 +80,6 @@ function [mean_est, cg_info] = conj_grad_mean(mean_kernel_f, mean_b, basis, ...
         mean_est_opt.preconditioner = precond_fun;
     end
 
-    mean_b_coeff = basis_evaluate_t(basis, mean_b);
-
     [mean_est_coeff, ~, cg_info] = ...
         conj_grad(kernel_fun, mean_b_coeff, mean_est_opt);
-
-    mean_est = basis_evaluate(basis, mean_est_coeff);
 end

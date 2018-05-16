@@ -86,8 +86,10 @@ function [mean_est, cg_info] = estimate_mean(src, basis, mean_est_opt)
         mean_est_opt.preconditioner = @(x)(x);
     end
 
-    mean_b = src_mean_backward(src, mean_est_opt);
+    mean_b_coeff = src_mean_backward(src, basis, mean_est_opt);
 
-    [mean_est, cg_info] = conj_grad_mean(kernel_f, mean_b, basis, ...
-        precond_kernel_f, mean_est_opt);
+    [mean_est_coeff, cg_info] = conj_grad_mean(kernel_f, mean_b_coeff, ...
+        basis, precond_kernel_f, mean_est_opt);
+
+    mean_est = basis_evaluate(basis, mean_est_coeff);
 end
