@@ -1,7 +1,7 @@
 % ESTIMATE_MEAN Estimate mean using least squares and conjugate gradients
 %
 % Usage
-%    mean_est = estimate_mean(src, basis, mean_est_opt);
+%    [mean_est, cg_info] = estimate_mean(src, basis, mean_est_opt);
 %
 % Input
 %    src: A source structure containing the images and imaging parameters.
@@ -29,7 +29,7 @@
 %    mean_est: The estimated mean volume, in the form of an L-by-L-by-L array.
 %       It minimizes the objective
 %
-%          1/n sum_{s=1}^n |P_s x - y_s|^2
+%          1/n sum_{s=1}^n |P_s x - y_s|^2 ,
 %
 %       where x is the volume, P_s are the imaging mappings (basis evaluation,
 %       projection, CTF filtering, translation, scaling), and y_s are the
