@@ -20,7 +20,7 @@
 %             operator x -> Px (default []).
 %          - rel_tolerance: The relative error at which to stop the algorithm,
 %             even if it has not yet reached the maximum number of iterations
-%             (default 1e-15).
+%             (default `eps(class(b))`).
 %          - store_iterates: Defines whether to store each intermediate results
 %             in the info structure under the x, p and r fields. Since this
 %             may require a large amount of memory, this is not recommended
@@ -65,7 +65,7 @@ function [x, obj, info] = conj_grad(Afun, b, cg_opt, init)
         'verbose', 0, ...
         'iter_callback', [], ...
         'preconditioner', @(x)(x), ...
-        'rel_tolerance', 1e-15, ...
+        'rel_tolerance', eps(class(b)), ...
         'store_iterates', false);
 
     b_norm = sqrt(sum(abs(b).^2, 1));
