@@ -16,6 +16,11 @@
 %             'single' (default).
 %          - 'batch_size': The size of the batches in which to compute the
 %             kernel (default 512).
+%          - 'shrinker': Type of shrinker to use. Should be one of 'none'
+%             (default), 'frobenius_norm', 'operator_norm', or
+%             'soft_threshold'. If set to 'none', it subtracts the expected
+%             noise contribution from `covar_b_coeff`. Otherwise,
+%             `shrink_covar` is applied using the given shrinker.
 %
 % Output
 %    covar_b_coeff: The sum of the outer products of the mean-subtracted
@@ -34,7 +39,8 @@ function covar_b_coeff = src_covar_backward(src, basis, mean_vol, ...
 
     covar_est_opt = fill_struct(covar_est_opt, ...
         'precision', 'single', ...
-        'batch_size', 512);
+        'batch_size', 512, ...
+        'shrinker', 'none');
 
     covar_b = zeros(src.L*ones(1, 3), covar_est_opt.precision);
 
@@ -58,11 +64,21 @@ function covar_b_coeff = src_covar_backward(src, basis, mean_vol, ...
         covar_b = covar_b + 1/src.n*vecmat_to_volmat(im_centered_b*im_centered_b');
     end
 
-    mean_kernel_f = src_mean_kernel(src, covar_est_opt);
-
-    covar_b_noise = noise_var*kernel_to_toeplitz(mean_kernel_f);
-
-    covar_b = covar_b - covar_b_noise;
-
     covar_b_coeff = basis_mat_evaluate_t(basis, covar_b);
+
+    mean_kernel_f = src_mean_kernel(src, covar_est_opt);
+    An = basis_mat_evaluate_t(basis, kernel_to_toeplitz(mean_kernel_f));
+
+    if strcmp(covar_est_opt.shrinker, 'none')
+        covar_b_coeff = covar_b_coeff - noise_var*An;
+    else
+        An_sqrt = sqrtm(An);
+
+        gamma = size(covar_b_coeff, 1)/src.n;
+
+        covar_b_coeff = An_sqrt\covar_b_coeff/An_sqrt;
+        covar_b_coeff = shrink_covar(covar_b_coeff, noise_var, gamma, ...
+            covar_est_opt.shrinker);
+        covar_b_coeff = An_sqrt*covar_b_coeff*An_sqrt;
+    end
 end
