@@ -41,7 +41,13 @@ function [V, D] = mdim_eigs(A, k, sigma)
 
     A = reshape(A, sig_len*ones(1, 2));
 
+    precision = class(A);
+    A = double(A);
+
     [V, D] = eigs(A, k, sigma);
+
+    V = cast(V, precision);
+    D = cast(D, precision);
 
     V = reshape(V, [sig_sz k]);
 end
