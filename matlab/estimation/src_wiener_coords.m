@@ -63,8 +63,12 @@ function coords = src_wiener_coords(src, mean_vol, eig_vols, lambdas, ...
 
         ims = ims - vol_forward(src, mean_vol, batch_s, batch_n);
 
+        Q_vecs = im_to_vec(Qs);
+
+        im_vecs = im_to_vec(ims);
+
         for s = 1:batch_n
-            im_coords = im_to_vec(Qs(:,:,:,s))'*im_to_vec(ims(:,:,s));
+            im_coords = Q_vecs(:,:,s)'*im_vecs(:,s);
 
             covar_im = (Rs(:,:,s)*lambdas*Rs(:,:,s)' + covar_noise);
 
@@ -84,13 +88,14 @@ function [Qs, Rs] = qr_vols_forward(src, s, n, vols)
 
     ims = permute(ims, [1 2 4 3]);
 
-    Qs = zeros([src.L*ones(1, 2) size(vols, 4)], class(vols));
+    Q_vecs = zeros([src.L^2 size(vols, 4)], class(vols));
     Rs = zeros([size(vols, 4)*ones(1, 2) n], class(vols));
 
-    for k = 1:n
-        [Qk, Rk] = qr(im_to_vec(ims(:,:,:,k)), 0);
+    im_vecs = im_to_vec(ims);
 
-        Qs(:,:,:,k) = vec_to_im(Qk);
-        Rs(:,:,k) = Rk;
+    for k = 1:n
+        [Q_vecs(:,:,k), Rs(:,:,k)] = qr(im_vecs(:,:,k), 0);
     end
+
+    Qs = vec_to_im(Q_vecs);
 end
