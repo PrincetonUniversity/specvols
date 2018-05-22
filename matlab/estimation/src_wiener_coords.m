@@ -9,6 +9,9 @@
 %    eig_vols: The eigenvolumes of the source in an L-by-L-by-L-by-K array.
 %    lambdas: The eigenvalues in a K-by-K diagonal matrix (default `eye(K)`).
 %    noise_var: The variance of the noise in the images (default 0).
+%    coords_opt: An options structure containing the fields:
+%          - 'batch_size': The size of the batches in which to compute the
+%             coordinates (default 512).
 %
 % Output
 %    coords: A K-by-`src.n` array of coordinates corresponding to the Wiener
@@ -25,13 +28,15 @@
 %       Note that when noise_var is zero, this reduces to the projecting
 %       y_s onto the span of P_s eig_vols.
 
-% TODO: Enable batch processing.
-
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
 function coords = src_wiener_coords(src, mean_vol, eig_vols, lambdas, ...
-    noise_var)
+    noise_var, coords_opt)
+
+    if nargin < 6 || isempty(coords_opt)
+        coords_opt = struct();
+    end
 
     if nargin < 5 || isempty(noise_var)
         noise_var = 0;
@@ -41,24 +46,32 @@ function coords = src_wiener_coords(src, mean_vol, eig_vols, lambdas, ...
         lambdas = eye(size(eig_vols, 4));
     end
 
-    [Qs, Rs] = qr_vols_forward(src, 1, src.n, eig_vols);
-
-    ims = src_image(src, 1, src.n);
-
-    ims = ims - vol_forward(src, mean_vol, 1, src.n);
-
-    covar_noise = noise_var*eye(size(eig_vols, 4));
+    coords_opt = fill_struct(coords_opt, ...
+        'batch_size', 512);
 
     coords = zeros([size(eig_vols, 4), src.n], src.precision);
 
-    for s = 1:src.n
-        im_coords = im_to_vec(Qs(:,:,:,s))'*im_to_vec(ims(:,:,s));
+    covar_noise = noise_var*eye(size(eig_vols, 4));
 
-        covar_im = (Rs(:,:,s)*lambdas*Rs(:,:,s)' + covar_noise);
+    for batch = 1:ceil(src.n/coords_opt.batch_size)
+        batch_s = (batch-1)*coords_opt.batch_size+1;
+        batch_n = min(batch*coords_opt.batch_size, src.n)-batch_s+1;
 
-        im_coords = lambdas*Rs(:,:,s)'*(covar_im\im_coords);
+        [Qs, Rs] = qr_vols_forward(src, batch_s, batch_n, eig_vols);
 
-        coords(:,s) = im_coords;
+        ims = src_image(src, batch_s, batch_n);
+
+        ims = ims - vol_forward(src, mean_vol, batch_s, batch_n);
+
+        for s = 1:batch_n
+            im_coords = im_to_vec(Qs(:,:,:,s))'*im_to_vec(ims(:,:,s));
+
+            covar_im = (Rs(:,:,s)*lambdas*Rs(:,:,s)' + covar_noise);
+
+            im_coords = lambdas*Rs(:,:,s)'*(covar_im\im_coords);
+
+            coords(:,batch_s+s-1) = im_coords;
+        end
     end
 end
 
