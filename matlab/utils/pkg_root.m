@@ -14,7 +14,8 @@ function root = pkg_root()
 
     [root, ~, ~] = fileparts(full_path);
 
-    ind = find(root == filesep, 1, 'last');
+    ind = find(root == filesep, 2, 'last');
+    ind = ind(1);
 
     root = root(1:ind-1);
 end

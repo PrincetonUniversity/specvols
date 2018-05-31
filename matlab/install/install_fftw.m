@@ -26,7 +26,7 @@ function install_fftw(url, location)
     end
 
     if nargin < 2 || isempty(location)
-        location = fullfile(pkg_root(), 'extern');
+        location = fullfile(pkg_root(), 'matlab', 'extern');
     end
 
     fprintf('Installing the FFTW package.\n');

@@ -28,11 +28,11 @@ function install_finufft(url, location, fftw_location)
     end
 
     if nargin < 2 || isempty(location)
-        location = fullfile(pkg_root(), 'extern');
+        location = fullfile(pkg_root(), 'matlab', 'extern');
     end
 
     if nargin < 3 || isempty(fftw_location)
-        fftw_location = fullfile(pkg_root(), 'extern', 'fftw3');
+        fftw_location = fullfile(pkg_root(), 'matlab', 'extern', 'fftw3');
     end
 
     if ~exist(fftw_location, 'dir')

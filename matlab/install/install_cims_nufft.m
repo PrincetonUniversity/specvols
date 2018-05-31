@@ -31,7 +31,7 @@ function install_cims_nufft(url, location, force_compile)
     end
 
     if nargin < 2 || isempty(location)
-        location = fullfile(pkg_root(), 'extern');
+        location = fullfile(pkg_root(), 'matlab', 'extern');
     end
 
     if nargin < 3 || isempty(force_compile)
