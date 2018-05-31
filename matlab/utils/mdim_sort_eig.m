@@ -17,6 +17,10 @@
 %    Joakim Anden <janden@flatironinstitute.org>
 
 function [V, D] = mdim_sort_eig(V, D)
+    if numel(D) == 1
+        return;
+    end
+
     d = ndims(V)-1;
 
     sig_sz = size(V);
