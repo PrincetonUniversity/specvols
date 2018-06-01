@@ -50,5 +50,13 @@ function im = src_image(src, s, n)
         im = im_downsample(im_original, src.L);
     elseif src.type == src_type_array()
         im = src.images(:,:,s:s+n-1);
+    elseif src.type == src_type_subset()
+        im = zeros([src.L*ones(1, 2) n], src.precision);
+
+        % TODO: Speed this up by getting images in contiguous blocks.
+
+        for k = 1:n
+            im(:,:,k) = src_image(src.original_src, src.subset_idx(s+k-1), 1);
+        end
     end
 end
