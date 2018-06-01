@@ -27,7 +27,7 @@ function b = is_basis(basis)
     b = b && numel(basis.count) == 1 && ...
         floor(basis.count) == basis.count && basis.count > 0;
 
-    allowed_types = [basis_type_dirac() basis_type_fb()];
+    allowed_types = [basis_type_dirac() basis_type_fb() basis_type_matrix()];
 
     b = b && any(ismember(basis.type, allowed_types));
 end

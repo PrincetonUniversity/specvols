@@ -38,6 +38,8 @@ function x = basis_expand_t(basis, v)
         x = dirac_basis_evaluate(basis, v);
     elseif basis.type == basis_type_fb()
         x = fb_basis_expand_t(basis, v);
+    elseif basis.type == basis_type_matrix()
+        x = matrix_basis_expand_t(basis, v);
     else
         error('Invalid basis type.');
     end
