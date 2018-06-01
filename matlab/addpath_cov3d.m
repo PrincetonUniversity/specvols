@@ -7,6 +7,7 @@ path_to_pkg = fileparts(mfilename('fullpath'));
 
 addpath(fullfile(path_to_pkg, 'basis'));
 addpath(fullfile(path_to_pkg, 'estimation'));
+addpath(fullfile(path_to_pkg, 'examples'));
 addpath(fullfile(path_to_pkg, 'imaging'));
 addpath(fullfile(path_to_pkg, 'install'));
 addpath(fullfile(path_to_pkg, 'io'));
