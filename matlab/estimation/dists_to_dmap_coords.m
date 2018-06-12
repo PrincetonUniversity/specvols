@@ -1,7 +1,7 @@
 % DISTS_TO_DMAP_COORDS Calculate diffusion map coordinates from distances
 %
 % Usage
-%    dmap_coords = dists_to_dmap_coords(dists, epsilon, t, num_coords);
+%    dmap_coords = dists_to_dmap_coords(dists, epsilon, num_coords, t);
 %
 % Input
 %    dists: An n-by-n positive matrix containing distances.
