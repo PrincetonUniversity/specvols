@@ -42,7 +42,7 @@ function covar_b_coeff = src_covar_backward(src, basis, mean_vol, ...
         'batch_size', 512, ...
         'shrinker', 'none');
 
-    covar_b = zeros(src.L*ones(1, 3), covar_est_opt.precision);
+    covar_b = zeros(src.L*ones(1, 6), covar_est_opt.precision);
 
     for batch = 1:ceil(src.n/covar_est_opt.batch_size)
         batch_s = (batch-1)*covar_est_opt.batch_size+1;
