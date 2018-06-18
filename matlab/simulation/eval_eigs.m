@@ -58,10 +58,9 @@ function eigs_perf = eval_eigs(eigs_true, lambdas_true, eigs_est, lambdas_est)
     rel_err = err/norm_true;
     corr = inner/(norm_true*norm_est);
 
-    cos_principal_angles = cos_principal_angles(vol_to_vec(eigs_true), ...
-        vol_to_vec(eigs_est));
-
     eigs_perf.rel_err = rel_err;
     eigs_perf.corr = corr;
-    eigs_perf.cos_principal_angles = cos_principal_angles;
+
+    eigs_perf.cos_principal_angles = ...
+        cos_principal_angles(vol_to_vec(eigs_true), vol_to_vec(eigs_est));
 end
