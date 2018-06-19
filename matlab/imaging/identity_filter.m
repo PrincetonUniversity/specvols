@@ -9,6 +9,9 @@
 % Output
 %    filter: A filter structure corresponding to the identity filter which
 %       leaves a signal unchanged.
+%
+% See also
+%    scalar_filter
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
@@ -18,7 +21,5 @@ function filter = identity_filter(dim)
         dim = 2;
     end
 
-    filter.type = filter_type_identity;
-    filter.dim = dim;
-    filter.radial = true;
+    filter = scalar_filter(1, dim);
 end

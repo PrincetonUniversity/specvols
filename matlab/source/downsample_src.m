@@ -40,7 +40,7 @@ function src = downsample_src(original_src, L)
 end
 
 function filter = scale_filter(filter, c)
-    if filter.type == filter_type_identity()
+    if filter.type == filter_type_scalar()
         return;
     elseif filter.type == filter_type_ctf()
         filter.ctf_params.pixel_size = filter.ctf_params.pixel_size*c;

@@ -44,12 +44,12 @@ function h = eval_filter(filter, omega)
         omega = cat(1, omega, zeros(size(omega), class(omega)));
     end
 
-    if filter.type == filter_type_identity
-        h = ones(size(omega));
+    if filter.type == filter_type_scalar
+        h = filter.value*ones(size(omega));
     elseif filter.type == filter_type_ctf
         h = eval_filter_ctf(filter, omega);
     else
-        error(['`filter.type` must be `filter_type_identity` or ' ...
+        error(['`filter.type` must be `filter_type_scalar` or ' ...
             '`filter_type_ctf`']);
     end
 
