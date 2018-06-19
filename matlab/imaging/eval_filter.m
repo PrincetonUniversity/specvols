@@ -50,6 +50,8 @@ function h = eval_filter(filter, omega)
         h = eval_filter_ctf(filter, omega);
     elseif filter.type == filter_type_power
         h = eval_filter(filter.original_filter, omega).^filter.p;
+    elseif filter.type == filter_type_gaussian
+        h = exp(-omega(1,:).^2/(2*filter.scale^2));
     else
         error(['`filter.type` must be a valid filter type']);
     end
