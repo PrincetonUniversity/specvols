@@ -14,7 +14,7 @@
 %    Joakim Anden <janden@flatironinstitute.org>
 
 function filter = identity_filter(dim)
-    if nargin < 2 || isempty(dim)
+    if nargin < 1 || isempty(dim)
         dim = 2;
     end
 
