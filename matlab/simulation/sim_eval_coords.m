@@ -42,5 +42,5 @@ function coords_perf = sim_eval_coords(sim, mean_vol, eig_vols, coords_est)
 
     coords_perf = struct();
 
-    coords_perf.rel_err = rel_err(:);
+    coords_perf.rel_err = rel_err(:)';
 end
