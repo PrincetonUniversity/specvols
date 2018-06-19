@@ -15,6 +15,8 @@
 %       fields:
 %          - rel_err: The relative error of the volumes obtained by expanding
 %             the coordinates in the affine space.
+%          - corr: The corrleations of the volumes obtained by expanding the
+%             coordinates in the affine space.
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
@@ -40,7 +42,17 @@ function coords_perf = sim_eval_coords(sim, mean_vol, eig_vols, coords_est)
 
     rel_err = err./norm_true;
 
+    inner = anorm(mean_vol)^2 + ...
+        mean_eigs_inners*(coords_true+coords_est) + ...
+        sum(coords_true .* coords_est, 1) + res_inners;
+
+    norm_est = sqrt(anorm(coords_est, 1).^2 + anorm(mean_vol)^2 + ...
+        2*mean_eigs_inners*coords_est);
+
+    corr = inner./(norm_true.*norm_est);
+
     coords_perf = struct();
 
     coords_perf.rel_err = rel_err(:)';
+    coords_perf.corr = corr;
 end
