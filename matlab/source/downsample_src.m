@@ -45,5 +45,7 @@ function filter = scale_filter(filter, c)
     elseif filter.type == filter_type_ctf()
         filter.ctf_params.pixel_size = filter.ctf_params.pixel_size*c;
         return;
+    elseif filter.type == filter_type_power()
+        filter.original_filter = scale_filter(filter.original_filter, c);
     end
 end

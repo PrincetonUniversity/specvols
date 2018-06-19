@@ -48,9 +48,10 @@ function h = eval_filter(filter, omega)
         h = filter.value*ones(size(omega));
     elseif filter.type == filter_type_ctf
         h = eval_filter_ctf(filter, omega);
+    elseif filter.type == filter_type_power
+        h = eval_filter(filter.original_filter, omega).^filter.p;
     else
-        error(['`filter.type` must be `filter_type_scalar` or ' ...
-            '`filter_type_ctf`']);
+        error(['`filter.type` must be a valid filter type']);
     end
 
     if filter.radial
