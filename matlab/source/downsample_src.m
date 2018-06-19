@@ -38,14 +38,3 @@ function src = downsample_src(original_src, L)
         src.params.filters(k) = scale_filter(src.params.filters(k), ds_factor);
     end
 end
-
-function filter = scale_filter(filter, c)
-    if filter.type == filter_type_scalar()
-        return;
-    elseif filter.type == filter_type_ctf()
-        filter.ctf_params.pixel_size = filter.ctf_params.pixel_size*c;
-        return;
-    elseif filter.type == filter_type_power()
-        filter.original_filter = scale_filter(filter.original_filter, c);
-    end
-end
