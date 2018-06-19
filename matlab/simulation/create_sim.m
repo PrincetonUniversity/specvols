@@ -32,7 +32,9 @@
 %          the images (default uniformly sampled between 2/3 and 3/2),
 %       - noise_seed: the random seed for generating the noise in the images
 %           (default 0), and
-%       - noise_var: the variance of the noise in the images (default 1).
+%       - noise_psd: the power spectral distribution of the noise in the
+%           images in the form of a filter object or a scalar denoting the
+%           noise variance (default 1).
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
@@ -53,7 +55,7 @@ function sim = create_sim(sim)
         'offsets', [], ...
         'amplitudes', [], ...
         'noise_seed', 0, ...
-        'noise_var', 1);
+        'noise_psd', 1);
 
     if isempty(sim.vols)
         rand_push(0);
