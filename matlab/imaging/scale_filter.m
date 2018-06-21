@@ -29,7 +29,9 @@ function filter = scale_filter(filter, c)
         return;
     elseif filter.type == filter_type_power()
         filter.original_filter = scale_filter(filter.original_filter, c);
-    elseif filter.type == filter_type_gaussian()
+    elseif filter.type == filter_type_gaussian() || ...
+        filter.type == filter_type_array()
+
         filter.scale = c*filter.scale;
     end
 end

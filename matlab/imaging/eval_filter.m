@@ -52,6 +52,16 @@ function h = eval_filter(filter, omega)
         h = eval_filter(filter.original_filter, omega).^filter.p;
     elseif filter.type == filter_type_gaussian
         h = exp(-omega(1,:).^2/(2*filter.scale^2));
+    elseif filter.type == filter_type_array
+        sz = filter.sz;
+
+        omega = omega/filter.scale;
+        omega = bsxfun(@times, omega/(2*pi), sz');
+        omega = bsxfun(@plus, omega, floor(sz'/2)+1);
+
+        omega = num2cell(omega, 2)';
+
+        h = interpn(filter.filter_f, omega{:}, 'linear', 0);
     else
         error(['`filter.type` must be a valid filter type']);
     end
