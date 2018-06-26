@@ -58,5 +58,17 @@ function im = src_image(src, s, n)
         for k = 1:n
             im(:,:,k) = src_image(src.original_src, src.subset_idx(s+k-1), 1);
         end
+    elseif src.type == src_type_filtered()
+        im = src_image(src.original_src, s, n);
+
+        filter_idx = src.filter_idx(s:s+n-1);
+
+        unique_filter_idx = unique(filter_idx);
+
+        for k = unique_filter_idx
+            mask = find(filter_idx == k);
+
+            im(:,:,mask) = im_filter(im, src.filters(k));
+        end
     end
 end
