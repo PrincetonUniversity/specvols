@@ -33,7 +33,7 @@ function coords_perf = sim_eval_coords(sim, mean_vol, eig_vols, coords_est)
 
     coords_err = coords_true - coords_est;
 
-    err = anorm(coords_err, 1).^2;
+    err = anorm(coords_err, 1);
     err = hypot(res_norms, err);
 
     norm_true = sqrt(anorm(coords_true, 1).^2 + anorm(mean_vol)^2 + ...
