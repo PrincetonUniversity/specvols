@@ -20,13 +20,7 @@
 function im = sim_noise_image(sim, start, num)
     precision = class(sim.vols);
 
-    noise_psd = sim.noise_psd;
-
-    if isnumeric(noise_psd)
-        noise_psd = scalar_filter(noise_psd);
-    end
-
-    noise_filter = power_filter(noise_psd, 1/2);
+    noise_filter = power_filter(sim.noise_psd, 1/2);
 
     im = zeros([sim.L*ones(1, 2) num], precision);
 
