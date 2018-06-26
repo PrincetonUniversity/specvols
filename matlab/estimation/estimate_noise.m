@@ -1,11 +1,11 @@
-% ESTIMATE_NOISE Estimate noise variance from source
+% ESTIMATE_NOISE Estimate noise power spectrum from source
 %
 % Usage
 %    noise_psd_est = estimate_noise(src, noise_est_opt);
 %
 % Input
-%    src: A source structure containing the images whose noise variance is to
-%       be estimated.
+%    src: A source structure containing the images whose noise power spectrum
+%       is to be estimated.
 %    noise_est_opt: A struct containing the fields:
 %          - 'batch_size': The size of the batches in which to compute the
 %             variance estimate (default 512).
@@ -15,8 +15,8 @@
 %             distribution is estimated (default 'white').
 %
 % Output
-%    noise_psd_est: The estimated noise variance or noise power spectral
-%       distribution of the images.
+%    noise_psd_est: The estimated noise power spectral distribution (PSD) of
+%       the images in the form of a filter object.
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
@@ -31,9 +31,11 @@ function noise_psd_est = estimate_noise(src, noise_est_opt)
         'noise_type', 'white');
 
     if strcmp(noise_est_opt.noise_type, 'white')
-        noise_psd_est = estimate_noise_white(src, noise_est_opt);
+        noise_var_est = estimate_noise_white(src, noise_est_opt);
+        noise_psd_est = scalar_filter(noise_var_est, 2);
     elseif strcmp(noise_est_opt.noise_type, 'anisotropic')
         noise_psd_est = estimate_noise_psd(src, noise_est_opt);
+        noise_psd_est = array_filter(noise_psd_est);
     else
         error('Invalid `noise_type`.');
     end
