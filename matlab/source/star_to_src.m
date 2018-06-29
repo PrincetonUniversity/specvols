@@ -31,7 +31,7 @@ function src = star_to_src(star, file_root, star_opt)
 
     src = struct();
 
-    src.type = src_type_mrcs();
+    src.type = src_type_file();
 
     if ~isstruct(star)
         error(['Input `star` must be a STAR file struct obtained from ' ...
@@ -62,17 +62,15 @@ function src = star_to_src(star, file_root, star_opt)
         src.L = [];
         src.precision = [];
     else
-        mrc = mrc_open(src.file_names{1});
+        info = image_info(src.file_names{1});
 
-        if mrc.header.N(2) ~= mrc.header.N(1)
+        if info.sz(2) ~= info.sz(1)
             error('Only square images are supported.');
         end
 
-        src.L = mrc.header.N(1);
+        src.L = info.sz(1);
 
-        src.precision = mrc.data_type;
-
-        mrc_close(mrc);
+        src.precision = info.precision;
     end
 
     src.params = star_to_params(star, star_opt);

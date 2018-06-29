@@ -21,7 +21,7 @@ function im = src_image(src, s, n)
 
     if src.type == src_type_sim()
         im = sim_image(src.sim, s, n);
-    elseif src.type == src_type_mrcs()
+    elseif src.type == src_type_file()
         im = zeros([src.L*ones(1, 2) n], src.precision);
 
         all_idx = s:s+n-1;
@@ -39,7 +39,7 @@ function im = src_image(src, s, n)
             file_s = min(file_image_idx{file_id});
             file_n = max(file_image_idx{file_id}) - file_s + 1;
 
-            file_im = load_mrc(file_name, file_s, file_n);
+            file_im = load_image(file_name, file_s, file_n);
             file_im = file_im(:,:,file_image_idx{file_id} - file_s + 1);
 
             im(:,:,file_idx == file_id) = file_im;
