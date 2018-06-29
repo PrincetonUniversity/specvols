@@ -9,6 +9,8 @@
 %    noise_est_opt: A struct containing the fields:
 %          - 'batch_size': The size of the batches in which to compute the
 %             variance estimate (default 512).
+%          - 'bg_radius': The radius of the disk whose complement is used to
+%             estimate the noise.
 %          - 'noise_type': The type of noise to estimate. This is either
 %             'white', in which case only the variance is estimated, or
 %             'anisotropic', in which an anisotropic power spectral
@@ -28,6 +30,7 @@ function noise_psd_est = estimate_noise(src, noise_est_opt)
 
     noise_est_opt = fill_struct(noise_est_opt, ...
         'batch_size', 512, ...
+        'bg_radius', 1, ...
         'noise_type', 'white');
 
     if strcmp(noise_est_opt.noise_type, 'white')
@@ -44,7 +47,7 @@ end
 function noise_psd_est = estimate_noise_psd(src, noise_est_opt)
     g2d = grid_2d(src.L);
 
-    mask = (g2d.r(:) >= 1);
+    mask = (g2d.r(:) >= noise_est_opt.bg_radius);
 
     batch_ct = ceil(src.n/noise_est_opt.batch_size);
 
@@ -76,7 +79,7 @@ end
 function noise_var_est = estimate_noise_white(src, noise_est_opt)
     g2d = grid_2d(src.L);
 
-    mask = find(g2d.r(:) >= 1);
+    mask = find(g2d.r(:) >= noise_est_opt.bg_radius);
 
     batch_ct = ceil(src.n/noise_est_opt.batch_size);
 
