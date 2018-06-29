@@ -10,6 +10,11 @@
 %    star_opt: An options structure with the fields:
 %          - strip_path: if true, strips the paths in the STAR files, only
 %             keeping the filenames (default false).
+%          - pixel_size: the pixel size of the images in angstroms (default 1),
+%          - B: the envelope decay of the CTF in inverse square angstrom
+%             (default 0),
+%       These parameters are not given in the STAR file itself and so need to
+%       be supplied.
 %
 % Output
 %    src: A source object corresponding to the given STAR file.
