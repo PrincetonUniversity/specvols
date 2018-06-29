@@ -70,5 +70,9 @@ function im = src_image(src, s, n)
 
             im(:,:,mask) = im_filter(im, src.filters(k));
         end
+    elseif src.type == src_type_normalized_bg()
+        im = src_image(src.original_src, s, n);
+
+        im = im_normalize_bg(im, src.bg_radius, src.do_ramp);
     end
 end
