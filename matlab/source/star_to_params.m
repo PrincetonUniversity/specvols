@@ -41,16 +41,31 @@ function params = star_to_params(star, star_opt)
         error('Invalid STAR file format.');
     end
 
-    angles_rot = [star.rlnAngleRot];
-    angles_tilt = [star.rlnAngleTilt];
-    angles_psi = [star.rlnAnglePsi];
-
-    origin_x = [star.rlnOriginX];
-    origin_y = [star.rlnOriginY];
-
-    class = [star.rlnClassNumber];
-
     n = numel(star);
+
+    if isfield(star, 'rlnAngleRot')
+        angles_rot = [star.rlnAngleRot];
+        angles_tilt = [star.rlnAngleTilt];
+        angles_psi = [star.rlnAnglePsi];
+    else
+        angles_rot = NaN(1, n);
+        angles_tilt = NaN(1, n);
+        angles_psi = NaN(1, n);
+    end
+
+    if isfield(star, 'rlnOriginX')
+        origin_x = [star.rlnOriginX];
+        origin_y = [star.rlnOriginY];
+    else
+        origin_x = NaN(1, n);
+        origin_y = NaN(1, n);
+    end
+
+    if isfield(star, 'rlnClassNumber')
+        class = [star.rlnClassNumber];
+    else
+        class = NaN(1, n);
+    end
 
     angles_rot = angles_rot/180*pi;
     angles_tilt = angles_tilt/180*pi;
@@ -58,14 +73,22 @@ function params = star_to_params(star, star_opt)
 
     angles = [angles_rot(:)'; angles_tilt(:)'; angles_psi(:)'];
 
-    [ctf_params, ctf_idx] = star_ctf_params(star, star_opt);
+    if isfield(star, 'rlnDefocusU')
+        [ctf_params, ctf_idx] = star_ctf_params(star, star_opt);
+
+        filters = ctf_filter(ctf_params);
+        filter_idx = ctf_idx;
+    else
+        filters = identity_filter();
+        filter_idx = ones(1, n);
+    end
 
     params = struct();
 
     params.rots = angles_to_rots(angles);
 
-    params.filters = ctf_filter(ctf_params);
-    params.filter_idx = ctf_idx;
+    params.filters = filters;
+    params.filter_idx = filter_idx;
 
     params.offsets = [origin_x(:)'; origin_y(:)'];
 
