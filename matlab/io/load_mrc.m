@@ -11,8 +11,8 @@
 %
 % Output
 %    x: The slices, arranged in an array of size N(1)-by-N(2)-by-n, where
-%       N are the slice dimensions from header.N and n are the number of
-%       slices extracted.
+%       N are the slice dimensions from header.N and n is the number of slices
+%       extracted.
 %    header: The header structure obtained from the MRC file.
 %
 % Description
