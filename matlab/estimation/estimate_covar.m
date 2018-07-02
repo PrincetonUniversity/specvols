@@ -12,7 +12,7 @@
 %    noise_var: The variance of the noise.
 %    basis: A basis object used for representing the volumes (default
 %       dirac_basis(L*ones(1, 3))).
-%    mean_est_opt: A struct containing the fields:
+%    covar_est_opt: A struct containing the fields:
 %          - 'precision': The precision of the kernel. Either 'double' or
 %             'single' (default).
 %          - 'batch_size': The size of the batches in which to compute the
