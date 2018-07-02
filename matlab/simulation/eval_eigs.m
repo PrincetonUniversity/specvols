@@ -58,6 +58,7 @@ function eigs_perf = eval_eigs(eigs_true, lambdas_true, eigs_est, lambdas_est)
     rel_err = err/norm_true;
     corr = inner/(norm_true*norm_est);
 
+    eigs_perf.err = err;
     eigs_perf.rel_err = rel_err;
     eigs_perf.corr = corr;
 

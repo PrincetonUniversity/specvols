@@ -31,9 +31,18 @@ function volmat_perf = eval_volmat(volmat_true, volmat_est)
 
     volmat_perf = struct();
 
-    rel_err = anorm(volmat_true-volmat_est, 1:6)./anorm(volmat_true, 1:6);
+    err = anorm(volmat_true-volmat_est, 1:6);
+    norm_true = anorm(volmat_true, 1:6);
+
+    err = permute(err, [7:ndims(err) 1:6]);
+    norm_true = permute(norm_true, [7:ndims(norm_true) 1:6]);
+
+    rel_err = err./norm_true;
     corr = acorr(volmat_true, volmat_est, 1:6);
 
-    volmat_perf.rel_err = permute(rel_err, [7:ndims(rel_err) 1:6]);
-    volmat_perf.corr = permute(corr, [7:ndims(corr) 1:6]);
+    corr = permute(corr, [7:ndims(corr) 1:6]);
+
+    volmat_perf.err = err;
+    volmat_perf.rel_err = rel_err;
+    volmat_perf.corr = corr;
 end
