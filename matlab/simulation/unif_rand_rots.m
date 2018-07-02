@@ -1,4 +1,4 @@
-% UNIF_RAND_ROTS Uniformly enerate random elements of SO(3)
+% UNIF_RAND_ROTS Uniformly generate random elements of SO(3)
 %
 % Usage
 %    rots = unif_rand_rots(n);
