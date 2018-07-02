@@ -1,7 +1,7 @@
-% RAND_ROTS Uniformly enerate random elements of SO(3)
+% UNIF_RAND_ROTS Uniformly enerate random elements of SO(3)
 %
 % Usage
-%    rots = rand_rots(n);
+%    rots = unif_rand_rots(n);
 %
 % Input
 %    n: The number of random matrices to generate.
@@ -11,14 +11,14 @@
 %       of n rotations sampled uniformly over SO(3).
 %
 % Note
-%    The 'rand_rots' function depends on the random number state of 'rand',
-%    so to obtain reproducible results, its state must be controlled prior
-%    to calling.
+%    The 'unif_rand_rots' function depends on the random number state of
+%    'rand', so to obtain reproducible results, its state must be controlled
+%    prior to calling.
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function rots = rand_rots(n)
+function rots = unif_rand_rots(n)
     angles = [rand(1, n)*2*pi; ...
               acos(2*rand(1, n)-1); ...
               rand(1, n)*2*pi];
