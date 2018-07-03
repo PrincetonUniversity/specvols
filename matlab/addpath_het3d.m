@@ -1,7 +1,7 @@
-% ADDPATH_COV3D Add paths for the package
+% ADDPATH_HET3D Add paths for the package
 %
 % Usage
-%    addpath_cov3d();
+%    addpath_HET3d();
 
 path_to_pkg = fileparts(mfilename('fullpath'));
 
