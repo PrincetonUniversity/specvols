@@ -1,12 +1,13 @@
 % CIRCULARIZE_KERNEL Calculate circulant approximation of Fourier kernel
 %
 % Usage
-%    kernel_circ_f = circularize_kernel(kernel_f);
+%    kernel_circ_f = circularize_kernel(kernel_f, dims);
 %
 % Input
 %    kernel_f: The original kernel in Fourier of size 2N-by-2N-by-... that is
 %       to be approximated by a circular convolution kernel of size
 %       N-by-N-by-... .
+%    dims: The number of dimensions to circularize (default `ndims(kernel_f)`).
 %
 % Output
 %    kernel_circ_f: A convolution kernel in Fourier of size N-by-N-by-...
@@ -20,8 +21,10 @@
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function kernel_circ_f = circularize_kernel(kernel_f)
-    dims = ndims(kernel_f);
+function kernel_circ_f = circularize_kernel(kernel_f, dims)
+    if nargin < 2 || isempty(dims)
+        dims = ndims(kernel_f);
+    end
 
     kernel = mdim_fftshift(ifftn(kernel_f), 1:dims);
 
