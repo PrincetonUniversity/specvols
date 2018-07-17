@@ -62,6 +62,11 @@ function h = eval_filter(filter, omega)
         omega = num2cell(omega, 2)';
 
         h = interpn(filter.filter_f, omega{:}, 'linear', 0);
+    elseif filter.type == filter_type_mult
+        h1 = eval_filter(filter.original_filter1, omega);
+        h2 = eval_filter(filter.original_filter2, omega);
+
+        h = h1.*h2;
     else
         error(['`filter.type` must be a valid filter type']);
     end
