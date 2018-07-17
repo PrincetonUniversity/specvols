@@ -26,10 +26,12 @@ function src = whiten_src(original_src, noise_psd)
     src.n = original_src.n;
     src.precision = original_src.precision;
 
-    src.params = original_src.params;
-
     whiten_filter = power_filter(noise_psd, -1/2);
 
     src.filters = whiten_filter;
     src.filter_idx = ones(1, src.n);
+
+    src.params = original_src.params;
+
+    src.params.filters = mult_filter(src.params.filters, whiten_filter);
 end
