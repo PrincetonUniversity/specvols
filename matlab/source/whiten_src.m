@@ -28,6 +28,7 @@ function src = whiten_src(original_src, noise_psd)
 
     whiten_filter = power_filter(noise_psd, -1/2);
 
+    % TODO: This is confusing. Should change to other variable names.
     src.filters = whiten_filter;
     src.filter_idx = ones(1, src.n);
 
