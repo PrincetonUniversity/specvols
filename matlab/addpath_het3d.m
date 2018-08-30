@@ -14,6 +14,7 @@ addpath(fullfile(path_to_pkg, 'nufft'));
 addpath(fullfile(path_to_pkg, 'simulation'));
 addpath(fullfile(path_to_pkg, 'source'));
 addpath(fullfile(path_to_pkg, 'utils'));
+addpath(fullfile(path_to_pkg, 'graph'));
 
 if exist(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'))
     addpath(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'));
