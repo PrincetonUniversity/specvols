@@ -14,6 +14,6 @@ function W = graph_knn(X,k)
     Vi = reshape(repmat([1:n],1,k),n*k,1);
     Vj = reshape(idx(:,2:end),n*k,1);
     edge_weights = ones(length(Vi),1);
-    S = sparse(Vi,Vj,edge_weights);
+    S = sparse(Vi,Vj,edge_weights,n,n);
     W = max(S,S');
 end
