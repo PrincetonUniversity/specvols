@@ -15,6 +15,7 @@ addpath(fullfile(path_to_pkg, 'simulation'));
 addpath(fullfile(path_to_pkg, 'source'));
 addpath(fullfile(path_to_pkg, 'utils'));
 addpath(fullfile(path_to_pkg, 'graph'));
+addpath(fullfile(path_to_pkg, 'datagen'));
 
 if exist(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'))
     addpath(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'));
