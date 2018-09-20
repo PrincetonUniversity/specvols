@@ -1,4 +1,4 @@
 matlab/extern/*
 
-*.mex
+*.mex*
 *.o
