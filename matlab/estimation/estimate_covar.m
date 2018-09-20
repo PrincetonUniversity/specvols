@@ -99,4 +99,6 @@ function covar_est = estimate_covar(src, mean_vol, noise_var, basis, ...
         precond_kernel_f, covar_est_opt);
 
     covar_est = basis_mat_evaluate(basis, covar_est_coeff);
+
+    covar_est = vecmat_to_volmat(make_symmat(volmat_to_vecmat(covar_est)));
 end

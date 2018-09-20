@@ -1,51 +1,38 @@
-% VOL_DOWNSAMPLE Blur and downsample a volume
+% VOL_DOWNSAMPLE Blur and downsample volume
 %
 % Usage
-%    vol_ds = vol_downsample(vol, N_ds, filter);
+%    vol_ds = vol_downsample(vol, L_ds);
 %
 % Input
 %    vol: Set of volumes to be downsampled in the form of an array
-%       N-by-N-by-N-by-M, where M is the number of volumes.
-%    N_ds: The desired resolution of the downsampled volumes.
-%    filter: The type of filter to use: 'gaussian', or 'sinc' (default
-%       'gaussian').
+%       L-by-L-by-L-by-K, where K is the number of volumes.
+%    L_ds: The desired resolution of the downsampled volumes. Must be smaller
+%       than L.
 %
 % Output
-%    vol_ds: An array of the form N_ds-by-N_ds-by-N_ds-by-M consisting of the
+%    vol_ds: An array of the form L_ds-by-L_ds-by-L_ds-by-K consisting of the
 %       blurred and downsampled volumes.
 
-function vol_ds = vol_downsample(vol, N_ds, filter)
-	if nargin < 3 || isempty(filter)
-		filter = 'gaussian';
-	end
+% Author
+%    Joakim Anden <janden@flatironinstitute.org>
 
-	N = size(vol, 1);
+function vol_ds = vol_downsample(vol, L_ds)
+    N = size(vol, 1);
 
-	c = N/N_ds/(2*sqrt(2*log(2)));
-	blur = exp(-[-ceil(3*c):ceil(3*c)].^2/(2*c^2));
+    grid = grid_3d(N);
+    grid_ds = grid_3d(L_ds);
 
-	mesh = grid_3d(N);
-	mesh_ds = grid_3d(N_ds);
+    vol_ds = zeros([L_ds*ones(1, 3) size(vol, 4)], class(vol));
 
-	vol_ds = zeros([N_ds*ones(1, 3) size(vol, 4)]);
+    % NOTE: Cannot use interp2 because it's not compatible with ndgrid.
+    ds_fun = @(vol)(interpn(grid.x, grid.y, grid.z, vol, ...
+        grid_ds.x, grid_ds.y, grid_ds.z, 'linear', 0));
 
-	ds_fun = @(vol)(interpn(mesh.x, mesh.y, mesh.z, vol, ...
-		mesh_ds.x, mesh_ds.y, mesh_ds.z, 'linear', 0));
+    mask = (abs(grid.x) < L_ds/N) & (abs(grid.y) < L_ds/N) & (abs(grid.z) < L_ds/N);
 
-	if strcmp(filter, 'gaussian')
-		for s = 1:size(vol_ds, 4)
-			vol_s = convn(vol(:,:,:,s), blur, 'same');
-			vol_ds(:,:,:,s) = ds_fun(vol_s);
-		end
-	else
-		mask = (abs(mesh.x) < N_ds/N) & (abs(mesh.y) < N_ds/N) & ...
-			(abs(mesh.z) < N_ds/N);
+    vol = real(centered_ifft3(bsxfun(@times, centered_fft3(vol), mask)));
 
-		vol = centered_ifft3(bsxfun(@times, centered_fft3(vol), mask));
-
-		for s = 1:size(vol_ds, 4)
-			vol_ds(:,:,:,s) = ds_fun(vol(:,:,:,s));
-		end
-	end
+    for s = 1:size(vol_ds, 4)
+        vol_ds(:,:,:,s) = ds_fun(vol(:,:,:,s));
+    end
 end
-

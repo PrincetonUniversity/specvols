@@ -1,2 +1,6 @@
 matlab/extern/*
+
 .*.m.swp
+
+*.mex
+*.o

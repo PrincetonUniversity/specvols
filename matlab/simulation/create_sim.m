@@ -19,7 +19,7 @@
 %       - states: a 1-by-n array containing the hvolume states for each
 %          images (default randomly sampled uniformly between 1 and K),
 %       - rots: a 3-by-3-by-n array of rotation matrices corresponding to
-%          viewing directions (default generated using 'rand_rots'),
+%          viewing directions (default generated using 'unif_rand_rots'),
 %       - filters: a struct array of filter F objects (see `eval_filter`)
 %          (default `identity_filter()`),
 %       - filter_idx: a 1-by-n array containing the filter function assigments
@@ -78,7 +78,7 @@ function sim = create_sim(sim)
     if isempty(sim.rots)
         rand_push(0);
 
-        sim.rots = rand_rots(sim.n);
+        sim.rots = unif_rand_rots(sim.n);
 
         rand_pop();
     end

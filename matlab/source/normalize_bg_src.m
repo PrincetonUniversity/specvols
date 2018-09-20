@@ -37,6 +37,7 @@ function src = normalize_bg_src(original_src, bg_radius, do_ramp)
     src.original_src = original_src;
 
     src.L = original_src.L;
+    src.n = original_src.n;
     src.precision = original_src.precision;
 
     src.params = original_src.params;

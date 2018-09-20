@@ -112,6 +112,7 @@ function [ctf_params, ctf_idx] = star_ctf_params(star, star_opt)
         [star.rlnSphericalAberration]' [star.rlnAmplitudeContrast]'];
 
     [params, ~, ctf_idx] = unique(params, 'rows');
+    ctf_idx = ctf_idx';
 
     ctf_params = struct();
 
