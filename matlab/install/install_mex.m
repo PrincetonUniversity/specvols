@@ -17,9 +17,9 @@ function install_mex()
     cd(mex_dir);
 
     if ~isoctave()
-        mex_opts = {'CFLAGS="$CFLAGS -fopenmp"', '-lgomp'};
+        mex_opts = {'-lgomp'};
     else
-        mex_opts = {};
+        mex_opts = {'-lgomp'};
     end
 
     for k = 1:numel(mex_files)
