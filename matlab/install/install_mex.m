@@ -26,12 +26,12 @@ function install_mex()
         filename =  mex_files(k).name;
 
         fprintf('Compiling ''%s''...\n', filename);
-        %try
+        try
             mex(mex_opts{:}, fullfile(mex_dir, filename));
-        %catch
-            %err_msg = sprintf('Unable to compile ''%s''.', filename);
-            %warning(err_msg);
-        %end
+        catch
+            err_msg = sprintf('Unable to compile ''%s''.', filename);
+            warning(err_msg);
+        end
     end
 
     cd(current_dir);
