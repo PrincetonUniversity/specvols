@@ -24,5 +24,5 @@ function pts_rot = rotated_grids(L, rot_matrices)
     pts_rot = bsxfun(@times, rot_matrices(:,1,:), pts(:,1)') + ...
         bsxfun(@times, rot_matrices(:,2,:), pts(:,2)');
 
-    pts_rot = reshape(pts_rot, [3 L*ones(1, 2) num_rots]);
+    pts_rot = reshape(pts_rot, [3 L^2 num_rots]);
 end
