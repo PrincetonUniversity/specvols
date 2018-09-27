@@ -50,30 +50,35 @@ function mean_kernel_f = src_mean_kernel(src, mean_est_opt)
 
     sq_filters_f = cast(sq_filters_f, mean_est_opt.precision);
 
+    [real_mask, stat_mask] = positive_half_space(L*ones(1, 2));
+
+    if mod(L, 2) == 0
+        sq_filters_f(1,:,:) = 0;
+        sq_filters_f(:,1,:) = 0;
+    end
+
+    sq_filters_f = reshape(sq_filters_f, [L^2 size(sq_filters_f, 3)]);
+    sq_filters_f(stat_mask(:),:) = 1/2*sq_filters_f(stat_mask(:),:);
+
+    sq_filters_f = sq_filters_f(real_mask(:),:);
+
     for batch = 1:batch_ct
         batch_s = (batch-1)*mean_est_opt.batch_size+1;
         batch_n = min(batch*mean_est_opt.batch_size, n)-batch_s+1;
 
         batch_idx = batch_s:batch_s+batch_n-1;
 
-        pts_rot = rotated_grids(L, params.rots(:,:,batch_idx));
+        pts_rot = rotated_grids(L, params.rots(:,:,batch_idx), real_mask);
 
-        weights = sq_filters_f(:,:,params.filter_idx(batch_idx));
+        weights = sq_filters_f(:,params.filter_idx(batch_idx));
         weights = bsxfun(@times, weights, ...
-            reshape(params.amplitudes(batch_idx).^2, [1 1 batch_n]));
+            reshape(params.amplitudes(batch_idx).^2, [1 batch_n]));
 
-        if mod(L, 2) == 0
-            weights(1,:,:) = 0;
-            weights(:,1,:) = 0;
-        end
-
-        weights = im_to_vec(weights);
-
-        pts_rot = reshape(pts_rot, 3, L^2*batch_n);
-        weights = reshape(weights, L^2*batch_n, 1);
+        pts_rot = reshape(pts_rot, 3, sum(real_mask(:))*batch_n);
+        weights = reshape(weights, sum(real_mask(:))*batch_n, 1);
 
         mean_kernel = mean_kernel + ...
-            1/(n*L^4)*real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
+            2/(n*L^4)*real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
     end
 
     % Ensure symmetric kernel.
