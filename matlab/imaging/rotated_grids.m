@@ -17,15 +17,12 @@
 function pts_rot = rotated_grids(L, rot_matrices)
     grid2d = grid_2d(L);
 
-    num_pts = L^2;
     num_rots = size(rot_matrices, 3);
 
-    pts = pi*[grid2d.x(:) grid2d.y(:) zeros(num_pts, 1)]';
+    pts = pi*[grid2d.x(:) grid2d.y(:)];
 
-    pts_rot = zeros(3, num_pts, num_rots);
-    for s = 1:num_rots
-        pts_rot(:,:,s) = rot_matrices(:,:,s)*pts;
-    end
+    pts_rot = bsxfun(@times, rot_matrices(:,1,:), pts(:,1)') + ...
+        bsxfun(@times, rot_matrices(:,2,:), pts(:,2)');
 
     pts_rot = reshape(pts_rot, [3 L*ones(1, 2) num_rots]);
 end
