@@ -34,13 +34,15 @@ function old_state = rand_state(new_state)
     end
 
     if isoctave()
-        old_state = zeros(625, 5);
+        if nargout > 0
+            old_state = zeros(625, 5);
 
-        old_state(:,1) = rand('state');
-        old_state(:,2) = randn('state');
-        old_state(:,3) = rande('state');
-        old_state(:,4) = randg('state');
-        old_state(:,5) = randp('state');
+            old_state(:,1) = rand('state');
+            old_state(:,2) = randn('state');
+            old_state(:,3) = rande('state');
+            old_state(:,4) = randg('state');
+            old_state(:,5) = randp('state');
+        end
 
         if ~isempty(new_state)
             if size(new_state, 2) == 1
@@ -56,7 +58,9 @@ function old_state = rand_state(new_state)
             randp('state', new_state(:,5));
         end
     else
-        old_state = rng;
+        if nargout > 0
+            old_state = rng;
+        end
 
         if ~isempty(new_state)
             if isnumeric(new_state) && numel(new_state) == 1

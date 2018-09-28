@@ -26,10 +26,16 @@ function filter = power_filter(original_filter, p)
     filter(1:numel(original_filter)) = struct();
 
     for k = 1:numel(original_filter)
-        filter(k).type = filter_type_power();
+        if original_filter(k).type == filter_type_scalar()
+            filter(k).type = filter_type_scalar();
+            filter(k).value = (original_filter(k).value)^p;
+        else
+            filter(k).type = filter_type_power();
+            filter(k).original_filter = original_filter(k);
+            filter(k).p = p;
+        end
+
         filter(k).dim = original_filter(k).dim;
         filter(k).radial = original_filter(k).radial;
-        filter(k).original_filter = original_filter(k);
-        filter(k).p = p;
     end
 end
