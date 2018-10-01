@@ -29,9 +29,11 @@ function vol = im_backproject(im, rot_matrices)
             'of images.']);
     end
 
-    pts_rot = rotated_grids(L, rot_matrices);
+    [real_mask, stat_mask] = positive_half_space(L*ones(1, 2));
 
-    pts_rot = reshape(pts_rot, [3 L^2*n]);
+    pts_rot = rotated_grids(L, rot_matrices, real_mask);
+
+    pts_rot = reshape(pts_rot, [3 sum(real_mask(:))*n]);
 
     im_f = 1/L^2*centered_fft2(im);
 
@@ -40,9 +42,14 @@ function vol = im_backproject(im, rot_matrices)
         im_f(:,1,:) = 0;
     end
 
-    im_f = reshape(im_f, [L^2*n 1]);
+    im_f = reshape(im_f, [L^2 n]);
+
+    im_f(stat_mask(:),:) = 1/2*im_f(stat_mask(:),:);
+    im_f = im_f(real_mask(:),:);
+
+    im_f = reshape(im_f, [sum(real_mask(:))*n 1]);
 
     vol = 1/L*anufft3(im_f, pts_rot, L*ones(1, 3));
 
-    vol = real(vol);
+    vol = 2*real(vol);
 end

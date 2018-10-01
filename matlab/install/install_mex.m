@@ -17,21 +17,21 @@ function install_mex()
     cd(mex_dir);
 
     if ~isoctave()
-        mex_opts = {'CFLAGS="$CFLAGS -fopenmp"', '-lgomp'};
+        mex_opts = {'-lgomp'};
     else
-        mex_opts = {};
+        mex_opts = {'-lgomp'};
     end
 
     for k = 1:numel(mex_files)
         filename =  mex_files(k).name;
 
         fprintf('Compiling ''%s''...\n', filename);
-        %try
+        try
             mex(mex_opts{:}, fullfile(mex_dir, filename));
-        %catch
-            %err_msg = sprintf('Unable to compile ''%s''.', filename);
-            %warning(err_msg);
-        %end
+        catch
+            err_msg = sprintf('Unable to compile ''%s''.', filename);
+            warning(err_msg);
+        end
     end
 
     cd(current_dir);
