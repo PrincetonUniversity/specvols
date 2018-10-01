@@ -89,7 +89,7 @@ function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
             nufft_opt = struct();
             nufft_opt.num_threads = 1;
             batch_slices(:,:,:,k) = 1/(L^4) * ...
-                real(anufft3(weights, pts_rot, 2*L*ones(1, 3),nufft_opt));
+                real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
 %             batch_slices(:,:,:,k) =  ...
 %                 real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
             

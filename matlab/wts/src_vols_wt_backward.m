@@ -84,7 +84,7 @@ function vols_wt_b_coeff = src_vols_wt_backward(src, basis, wts, vols_wt_est_opt
             im_f_flat = reshape(im_f, [L^2 1]);
             nufft_opt = struct();
             nufft_opt.num_threads = 1;
-            vol = 1/L*anufft3(im_f_flat, pts_rot, [L L L],nufft_opt);
+            vol = 1/L*anufft3(im_f_flat, pts_rot, [L L L]);
             local_slices(:,:,:,k) = real(vol);
         end
 
