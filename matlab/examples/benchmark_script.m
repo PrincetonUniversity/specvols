@@ -29,7 +29,7 @@
 %
 % First, we addpath!
 
-addpath_cov3d;
+addpath_het3d;
 
 disp('Let''s get started!');
 disp(datetime('now'));
