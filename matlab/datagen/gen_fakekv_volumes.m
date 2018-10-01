@@ -17,11 +17,8 @@
 %   normed_vols
 %       Normalized volumes, projected to Fourier-Bessel basis
 
-function normed_vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2)
+function normed_vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, basis)
 
-    uncomputed_basis = fb_basis(L*ones(1,3),[]);
-    basis = precompute_basis(uncomputed_basis);
-    
     path_to_source_file = fileparts(mfilename('fullpath'));
     
     fixed_map = fullfile(path_to_source_file, '../../data/FakeKvMap/FakeKvMapAlphaOne.mrc');

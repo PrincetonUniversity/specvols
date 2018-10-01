@@ -18,6 +18,7 @@ addpath(fullfile(path_to_pkg, 'utils'));
 addpath(fullfile(path_to_pkg, 'graph'));
 addpath(fullfile(path_to_pkg, 'datagen'));
 addpath(fullfile(path_to_pkg, 'utils', 'mex'));
+addpath(fullfile(path_to_pkg, 'wts'));
 
 if exist(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'))
     addpath(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'));

@@ -42,17 +42,17 @@ max_angle_1 = pi/2;
 num_angles_2 = 1;
 max_angle_2 = 0;
 basis_type = 'dirac';
-basis_precompute = 1;
-save_vols = 1;      %save precalculated volumes to save time
-save_vol_name = 'pregen_vols';  %will have N and num_angles
+basis_precompute = 0;
+save_vols = 0;      %save precalculated volumes to save time
+save_vol_name = 'pregen_vols';  %will have L and num_angles
                                             %added to the name
-load_vols = 1;      %load precalculated volumes if present
+load_vols = 0;      %load precalculated volumes if present
 load_vol_name = []; %default uses save_vol_name
                                             
 % parameters related to the simulation
 
-N = 32;
-n = 1e4;
+L = 8;
+n = 512;
 noise_var = 0.1;      %normalized to the average energy of the volumes used
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
@@ -89,7 +89,7 @@ r = 4;  %also counts for above...
 disp(['Finished initializing, t = ' num2str(toc)]);
                     
 %% Set up test volumes
-uncomputed_basis = dirac_basis(N*ones(1,3),[]);
+uncomputed_basis = dirac_basis(L*ones(1,3),[]);
 if basis_precompute
     basis = precompute_basis(uncomputed_basis);
 else
@@ -98,21 +98,24 @@ end
 
 if load_vols
     if exist(load_vol_name)
-        full_load_name = [load_vol_name '_N_' num2str(N) '_num_ang_1_' ...
+        full_load_name = [load_vol_name '_L_' num2str(L) '_num_ang_1_' ...
             num2str(num_angles_1) '_num_ang_2_' num2str(num_angles_2) '.mat'];
     else
-        full_load_name = [save_vol_name '_N_' num2str(N) '_num_ang_1_' ...
+        full_load_name = [save_vol_name '_L_' num2str(L) '_num_ang_1_' ...
             num2str(num_angles_1) '_num_ang_2_' num2str(num_angles_2) '.mat'];
     end
     if exist(full_load_name,'file');
         load(full_load_name)
     else
-        vols = generate_vols(N,num_angles_1,num_angles_2,basis);
+        vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, basis);
     end
+else
+%     vols = generate_vols(L,num_angles_1,num_angles_2,basis);
+    vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, basis);
 end
 
 if save_vols
-    full_save_name = [save_vol_name '_N_' num2str(N) '_num_ang_1_' ...
+    full_save_name = [save_vol_name '_L_' num2str(L) '_num_ang_1_' ...
         num2str(num_angles_1) '_num_ang_2_' num2str(num_angles_2) '.mat'];
     if ~exist(save_vol_name,'file')
         save(full_save_name','vols');
@@ -125,7 +128,7 @@ disp(['Finished with volumes, t = ' num2str(toc)]);
 sim_params = struct();
 sim_params = fill_struct(sim_params, ...
         'n', n, ...
-        'L', N,  ...
+        'L', L,  ...
         'vols', vols, ...
         'states', states, ...
         'rots', rots, ...
@@ -223,8 +226,7 @@ d2 = bsxfun(@plus, n2, n2') - 2*coords'*coords;
 
 dists = sqrt(max(0, d2));
 
-[dmap_coords dmap_evals]= dists_to_dmap_coords(dists, dists_epsilon, ...
-    r, dmap_t);
+dmap_coords = dists_to_dmap_coords(dists, dists_epsilon, r, dmap_t);
 
 disp(['Finished with dmap coords, t = ' num2str(toc)]);
 

@@ -78,7 +78,7 @@ function [vols_wt_est, cg_info] = estimate_vols_wt(src, basis, wts, vols_wt_est_
         basis = dirac_basis(L*ones(1, 3));
     end
 
-    kermat_f = sqrt(n^2) * src_vols_wt_kermat_slices(src, wts, vols_wt_est_opt);
+    kermat_f = sqrt(n^2) * src_vols_wt_kermat(src, wts, vols_wt_est_opt);
 
     precond_kermat_f = [];
 
@@ -95,7 +95,7 @@ function [vols_wt_est, cg_info] = estimate_vols_wt(src, basis, wts, vols_wt_est_
         vols_wt_est_opt.preconditioner = @(x)(x);
     end
 
-    vols_wt_b_coeff = sqrt(n) * src_vols_wt_backward_slices(src, basis, wts, vols_wt_est_opt);
+    vols_wt_b_coeff = sqrt(n) * src_vols_wt_backward(src, basis, wts, vols_wt_est_opt);
 
     
     [vols_wt_est_coeff, cg_info] = conj_grad_vols_wt(kermat_f, vols_wt_b_coeff, ...
