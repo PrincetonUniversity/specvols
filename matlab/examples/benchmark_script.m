@@ -51,8 +51,8 @@ load_vol_name = []; %default uses save_vol_name
                                             
 % parameters related to the simulation
 
-L = 8;
-n = 512;
+L = 32;
+n = 1e4;
 noise_var = 0.1;      %normalized to the average energy of the volumes used
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
