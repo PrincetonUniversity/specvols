@@ -25,18 +25,9 @@ function vol_perf = eval_vol(vol_true, vol_est)
 
     vol_perf = struct();
 
-    err = anorm(vol_true-vol_est, 1:3);
-    norm_true = anorm(vol_true, 1:3);
-
-    err = permute(err, [4:ndims(err) 1:3]);
-    norm_true = permute(norm_true, [4:ndims(err) 1:3]);
-
-    rel_err = err./norm_true;
+    rel_err = anorm(vol_true-vol_est, 1:3)./anorm(vol_true, 1:3);
     corr = acorr(vol_true, vol_est, 1:3);
 
-    corr = permute(corr, [4:ndims(corr) 1:3]);
-
-    vol_perf.err = err;
-    vol_perf.rel_err = rel_err;
-    vol_perf.corr = corr;
+    vol_perf.rel_err = permute(rel_err, [4:ndims(rel_err) 1:3]);
+    vol_perf.corr = permute(corr, [4:ndims(corr) 1:3]);
 end

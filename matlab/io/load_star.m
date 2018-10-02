@@ -127,12 +127,7 @@ function [labels, values] = load_star_list(fid)
 
         % First character is '_' so skip it.
         labels{n} = parts{1}(2:end);
-        if numel(parts) < 2
-            values{n} = [];
-        else
-            values{n} = parts{2};
-        end
-
+        values{n} = parts{2};
 
         n = n+1;
     end

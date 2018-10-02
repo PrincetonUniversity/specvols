@@ -25,7 +25,7 @@ function vol_coeff = apply_mean_kernel(vol_coeff, kernel_f, basis, ...
 
     vol = basis_evaluate(basis, vol_coeff);
 
-    vol = conv_vol(vol, kernel_f);
+    vol = conv_vol_bkwd(vol, kernel_f);
 
     vol_coeff = basis_evaluate_t(basis, vol);
 end

@@ -29,9 +29,9 @@ function x = conv_vol(x, kernel_f)
 
     N_ker = size(kernel_f, 1);
 
-    if any(size(kernel_f) ~= N_ker)
-        error('Convolution kernel `kernel_f` must be cubic.');
-    end
+%     if any(size(kernel_f) ~= N_ker)
+%         error('Convolution kernel `kernel_f` must be cubic.');
+%     end
 
     if is_singleton
         x = fftn(x, N_ker*ones(1, 3));

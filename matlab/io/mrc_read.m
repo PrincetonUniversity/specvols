@@ -22,11 +22,7 @@ function x = mrc_read(mrc, n)
     end
     N = mrc.header.N(1:2);
 
-    if isinf(n)
-        n = mrc.header.N(3);
-    end
-
     [x, count] = fread(mrc.fd, prod(N)*n, ['*' mrc.data_type]);
 
-    x = reshape(x, [N' n]);
+    x = reshape(x, [N' count/prod(N)]);
 end

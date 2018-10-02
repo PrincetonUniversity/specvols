@@ -17,7 +17,5 @@
 %    Joakim Anden <janden@flatironinstitute.org>
 
 function noise_power = sim_noise_power(sim)
-    % TODO: Verify this. Probably not exact, but good enough for now.
-    noise_psd = eval_filter_grid(sim.noise_psd, sim.L);
-    noise_power = sum(noise_psd(:))/sim.L^2;
+    noise_power = sim.noise_var;
 end

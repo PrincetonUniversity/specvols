@@ -34,7 +34,7 @@ function [ errs ] = check_recon_wts( src, wts, vols_wt_est, err_type )
     
     recon_vols = reshape( reshape(vols_wt_est,[N^3 r]) * wts,[N N N n]);
     
-    if(strcmp(err_type,'FSC'))
+    if(strcmp(err_type,'fsc'))
         errs = zeros(floor(N/2),n);    %Floor for odd N
     else
         errs = zeros(1,n);
@@ -54,9 +54,9 @@ function [ errs ] = check_recon_wts( src, wts, vols_wt_est, err_type )
                 :,:,:,unique_states(i)),[1 1 1 length(idxes)]),recon_vols(:,:,:,idxes),[1 2 3]);
         elseif(strcmp(err_type,'ratios'))
             errs(idxes) = [];
-        elseif(strcmp(err_type,'FSC'))
+        elseif(strcmp(err_type,'fsc'))
             errs(:,idxes) = repmat(FSCorr(src.sim.vols(:,:,:, ...
-                unique_states(i)),recon_vols(:,:,:,idxes)),[1, numel(idxes)]);
+                unique_states(i)),recon_vols(:,:,:,idxes(1))),[1, numel(idxes)]);
         end
     end
 

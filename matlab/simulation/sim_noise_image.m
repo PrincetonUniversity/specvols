@@ -20,22 +20,17 @@
 function im = sim_noise_image(sim, start, num)
     precision = class(sim.vols);
 
-    noise_filter = power_filter(sim.noise_psd, 1/2);
-
-    im = zeros([2*sim.L*ones(1, 2) num], precision);
+    im = zeros([sim.L*ones(1, 2) num], precision);
 
     rand_push();
 
     for s = start:start+num-1
         rand_state(sim.noise_seed + 191*s);
 
-        im_s = randn(2*sim.L*ones(1, 2), precision);
+        im_s = sqrt(sim.noise_var)*randn(sim.L*ones(1, 2), precision);
 
         im(:,:,s-start+1) = im_s;
     end
-
-    im = im_filter(im, noise_filter);
-    im = im(1:sim.L,1:sim.L,:);
 
     rand_pop();
 end

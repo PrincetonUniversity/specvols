@@ -12,7 +12,7 @@
 %    noise_var: The variance of the noise.
 %    basis: A basis object used for representing the volumes (default
 %       dirac_basis(L*ones(1, 3))).
-%    covar_est_opt: A struct containing the fields:
+%    mean_est_opt: A struct containing the fields:
 %          - 'precision': The precision of the kernel. Either 'double' or
 %             'single' (default).
 %          - 'batch_size': The size of the batches in which to compute the
@@ -53,7 +53,7 @@
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function covar_est = estimate_covar(src, mean_vol, noise_var, basis, ...
+function [covar_est, cg_info] = estimate_covar(src, mean_vol, noise_var, basis, ...
     covar_est_opt)
 
     if nargin < 4
@@ -99,6 +99,4 @@ function covar_est = estimate_covar(src, mean_vol, noise_var, basis, ...
         precond_kernel_f, covar_est_opt);
 
     covar_est = basis_mat_evaluate(basis, covar_est_coeff);
-
-    covar_est = vecmat_to_volmat(make_symmat(volmat_to_vecmat(covar_est)));
 end

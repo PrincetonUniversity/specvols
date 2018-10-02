@@ -44,31 +44,13 @@ function h = eval_filter(filter, omega)
         omega = cat(1, omega, zeros(size(omega), class(omega)));
     end
 
-    if filter.type == filter_type_scalar
-        h = filter.value*ones(size(omega));
+    if filter.type == filter_type_identity
+        h = ones(size(omega));
     elseif filter.type == filter_type_ctf
         h = eval_filter_ctf(filter, omega);
-    elseif filter.type == filter_type_power
-        h = eval_filter(filter.original_filter, omega).^filter.p;
-    elseif filter.type == filter_type_gaussian
-        h = exp(-omega(1,:).^2/(2*filter.scale^2));
-    elseif filter.type == filter_type_array
-        sz = filter.sz;
-
-        omega = omega/filter.scale;
-        omega = bsxfun(@times, omega/(2*pi), sz');
-        omega = bsxfun(@plus, omega, floor(sz'/2)+1);
-
-        omega = num2cell(omega, 2)';
-
-        h = interpn(filter.filter_f, omega{:}, 'linear', 0);
-    elseif filter.type == filter_type_mult
-        h1 = eval_filter(filter.original_filter1, omega);
-        h2 = eval_filter(filter.original_filter2, omega);
-
-        h = h1.*h2;
     else
-        error(['`filter.type` must be a valid filter type']);
+        error(['`filter.type` must be `filter_type_identity` or ' ...
+            '`filter_type_ctf`']);
     end
 
     if filter.radial

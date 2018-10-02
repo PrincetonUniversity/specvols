@@ -10,11 +10,6 @@
 %    star_opt: An options structure with the fields:
 %          - strip_path: if true, strips the paths in the STAR files, only
 %             keeping the filenames (default false).
-%          - pixel_size: the pixel size of the images in angstroms (default 1),
-%          - B: the envelope decay of the CTF in inverse square angstrom
-%             (default 0),
-%       These parameters are not given in the STAR file itself and so need to
-%       be supplied.
 %
 % Output
 %    src: A source object corresponding to the given STAR file.
@@ -36,7 +31,7 @@ function src = star_to_src(star, file_root, star_opt)
 
     src = struct();
 
-    src.type = src_type_file();
+    src.type = src_type_mrcs();
 
     if ~isstruct(star)
         error(['Input `star` must be a STAR file struct obtained from ' ...
@@ -67,15 +62,17 @@ function src = star_to_src(star, file_root, star_opt)
         src.L = [];
         src.precision = [];
     else
-        info = image_info(src.file_names{1});
+        mrc = mrc_open(src.file_names{1});
 
-        if info.sz(2) ~= info.sz(1)
+        if mrc.header.N(2) ~= mrc.header.N(1)
             error('Only square images are supported.');
         end
 
-        src.L = info.sz(1);
+        src.L = mrc.header.N(1);
 
-        src.precision = info.precision;
+        src.precision = mrc.data_type;
+
+        mrc_close(mrc);
     end
 
     src.params = star_to_params(star, star_opt);

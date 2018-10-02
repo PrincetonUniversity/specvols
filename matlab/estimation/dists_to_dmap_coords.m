@@ -13,11 +13,12 @@
 % Output
 %    dmap_coords: The calculated diffusion map coordinates in an array of size
 %       num_coords-by-n.
+%    eigs: the eigenvalues (for diagnostics)
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function dmap_coords = dists_to_dmap_coords(dists, epsilon, num_coords, t)
+function [dmap_coords eigenvals]= dists_to_dmap_coords(dists, epsilon, num_coords, t)
     if nargin < 4 || isempty(t)
         t = 0;
     end
@@ -36,12 +37,18 @@ function dmap_coords = dists_to_dmap_coords(dists, epsilon, num_coords, t)
 
     S = D^(-1/2)*W*D^(-1/2);
 
+    
+    
     S = make_symmat(S);
 
-    [V, lambda] = eigs(S, num_coords+1, 'la');
+    [V, lambda] = eigs(S, num_coords, 'la');
 
     phi = D^(-1/2)*V;
 
-    dmap_coords = phi(:,2:end)*lambda(2:end,2:end)^t;
+%     dmap_coords = phi(:,2:end)*lambda(2:end,2:end)^t;
+    dmap_coords = phi*lambda^t;
+
     dmap_coords = dmap_coords.';
+    
+    eigenvals = diag(lambda);
 end

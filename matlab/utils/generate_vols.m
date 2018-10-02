@@ -12,18 +12,16 @@ function [ normed_vols ] = generate_vols( N, num_angles_1, num_angles_2, basis)
     max_angle_1 = pi/2;
     max_angle_2 = pi/2;
     
-    path_to_source_file = fileparts(mfilename('fullpath'));
-    
-    fixed_map = fullfile(path_to_source_file, '../../data/FakeKvMap/FakeKvMapAlphaOne.mrc');
+    fixed_map = 'FakeKvMapAlphaOne.mrc';
+    moving_map1 = 'FakeKvMapAlphaTwo.mrc';
+    moving_map2 = 'FakeKvMapBeta.mrc';
+
     vol_fixed = load_mrc(fixed_map);
-    vol_fixed = max(0, vol_fixed);
-
-    moving_map1 = fullfile(path_to_source_file, '../../data/FakeKvMap/FakeKvMapAlphaTwo.mrc');
     vol_moving1 = load_mrc(moving_map1);
-    vol_moving1 = max(0, vol_moving1);
-
-    moving_map2 = fullfile(path_to_source_file, '../../data/FakeKvMap/FakeKvMapBeta.mrc');
     vol_moving2 = load_mrc(moving_map2);
+
+    vol_fixed = max(0, vol_fixed);
+    vol_moving1 = max(0, vol_moving1);
     vol_moving2 = 0.85*max(0, vol_moving2);
 
     vol_moving1_rot = vol_rotate_z(vol_moving1, linspace(0, max_angle_1, num_angles_1));

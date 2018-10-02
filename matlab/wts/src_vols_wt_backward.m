@@ -29,12 +29,12 @@
 %    Joakim Anden <janden@flatironinstitute.org>
 %    Amit Halevi <ahalevi@princeton.edu>
 
-function vols_wt_b_coeff = src_vols_wt_backward(src, basis, wts, vols_wt_est_opt)
-    if nargin < 3 || isempty(vols_wt_est_opt)
-        vols_wt_est_opt = struct();
+function vols_wt_b_coeff = src_vols_wt_backward(src, basis, wts, mean_est_opt)
+    if nargin < 3 || isempty(mean_est_opt)
+        mean_est_opt = struct();
     end
 
-    vols_wt_est_opt = fill_struct(vols_wt_est_opt, ...
+    mean_est_opt = fill_struct(mean_est_opt, ...
         'precision', 'single', ...
         'batch_size', 512);
 
@@ -43,67 +43,27 @@ function vols_wt_b_coeff = src_vols_wt_backward(src, basis, wts, vols_wt_est_opt
     L = src.L;
     n = src.n;
     r = size(wts,1);
-    
+
     if n ~= size(params.rots, 3)
         error('Number of images in source and parameters do not agree.');
     end
 
-    batch_ct = ceil(n/vols_wt_est_opt.batch_size);
+    batch_ct = ceil(n/mean_est_opt.batch_size);
 
-    vols_wt_b = zeros([L L L r], vols_wt_est_opt.precision);
+    vols_wt_b = zeros([L L L r], mean_est_opt.precision);
 
-    tic
-    disp('coef_b')
-    for batch = 1:batch_ct
-        disp(['batch ' num2str(batch) ' t = ' num2str(toc)]);
-        batch_s = (batch-1)*vols_wt_est_opt.batch_size+1;
-        batch_n = min(batch*vols_wt_est_opt.batch_size, n)-batch_s+1;
+    for k = 1:r
+        for batch = 1:batch_ct
+            batch_s = (batch-1)*mean_est_opt.batch_size+1;
+            batch_n = min(batch*mean_est_opt.batch_size, n)-batch_s+1;
 
-        batch_idx = batch_s:(batch_s+batch_n-1);
-        
-        local_slices = zeros([L L L batch_n]);
-        
-        parfor k = 1:batch_n
-            idx = k+batch_s-1;
-%             local_slices = im_backward(src,src_image(src,k+batch_s-1,1), k+batch_s-1);
-            im = src_image(src,idx,1);
-            scaled_im = params.amplitudes(idx) * im;
-            % I should incorporated the shifts here directly, since it's
-            % just a phase shift in Fourier...
-            shifted_im = im_translate(scaled_im,-params.offsets(:,idx));
-            filtered_im = im_filter(shifted_im,params.filters(params.filter_idx(idx)));
-            %local_slices(:,:,:,k) = imbackproject(filtered_im,params.rots(:,:,idx);
-            pts_rot = rotated_grids(L,params.rots(:,:,idx));
-            pts_rot = reshape(pts_rot,[3 L^2]);
-            im_f = 1/L^2 * centered_fft2(filtered_im);
-            if mod(L, 2) == 0
-                im_f(1,:,:) = 0;
-                im_f(:,1,:) = 0;
-            end
+            batch_vols_wt_b = 1/n * im_backward_wt(src, src_image(src, ...
+                batch_s, batch_n), wts(k,:), batch_s);
+            batch_vols_wt_b = cast(batch_vols_wt_b, mean_est_opt.precision);
 
-            im_f_flat = reshape(im_f, [L^2 1]);
-            nufft_opt = struct();
-            nufft_opt.num_threads = 1;
-            vol = 1/L*anufft3(im_f_flat, pts_rot, [L L L]);
-            local_slices(:,:,:,k) = real(vol);
-        end
-
-        %note: I can do the below using a single bsxfun instead of a for
-        %loop and a bsxfun, but I like how this is similar to the kernel
-        %calculation this way (and that one isn't at present implemented as
-        %a bsxfun, though it could be with an extra step).
-        %It seems like I should be able to get rid of the second permute by
-        %just taking the sum along the first coordinate, but then I'd still
-        %have to permute to get right of the first dimension being a
-        %singleton!  Life is pain.
-        for l = 1:r
-            wted_sum = sum(permute(bsxfun(@times,wts(l,batch_idx)',permute(local_slices,[4 1 2 3])),[2 3 4 1]),4);
-            vols_wt_b(:,:,:,l) = vols_wt_b(:,:,:,l) + cast(wted_sum,vols_wt_est_opt.precision);
+            vols_wt_b(:,:,:,k) = vols_wt_b(:,:,:,k) + batch_vols_wt_b;
         end
     end
 
-    for l = 1:r
-        vols_wt_b_coeff(:,l) = basis_evaluate_t(basis,vols_wt_b(:,:,:,l));
-    end
-%     vols_wt_b_coeff = vols_wt_b;
+    vols_wt_b_coeff = basis_evaluate_t(basis, vols_wt_b);
 end

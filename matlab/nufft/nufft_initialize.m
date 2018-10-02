@@ -29,8 +29,7 @@ function plan = nufft_initialize(sz, num_pts, nufft_opt)
     end
 
     nufft_opt = fill_struct(nufft_opt, ...
-        'epsilon', 1e-15, ...
-        'num_threads', 0);
+        'epsilon', 1e-15);
 
     lib_code = pick_nufft_library(sz);
 
@@ -41,7 +40,6 @@ function plan = nufft_initialize(sz, num_pts, nufft_opt)
     plan.num_pts = num_pts;
 
     plan.epsilon = nufft_opt.epsilon;
-    plan.num_threads = nufft_opt.num_threads;
 
     if lib_code == 3
         m = epsilon_to_nfft_cutoff(plan.epsilon);

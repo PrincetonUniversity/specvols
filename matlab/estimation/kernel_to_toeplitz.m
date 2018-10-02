@@ -1,12 +1,11 @@
 % KERNEL_TO_TOEPLITZ Convert 3D Fourier kernel into 3D Toeplitz matrix
 %
 % Usage
-%    A = kernel_to_toeplitz(kernel_f, L);
+%    A = kernel_to_toeplitz(kernel_f);
 %
 % Input
 %    kernel_f: The Fourier transform of the convolution kernel in the form of
-%       an M-by-M-by-M volume. The Fourier transform must be centered.
-%    L: The size of the volumes to be convolved (default M/2).
+%       2*L-by-2*L-by-2*L volume. The Fourier transform must be centered.
 %
 % Output
 %    A: An six-dimensional Toeplitz matrix of size L describing the convolu-
@@ -18,10 +17,8 @@
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function A = kernel_to_toeplitz(kernel_f, L)
-    if nargin < 2 || isempty(L)
-        L = size(kernel_f, 1)/2;
-    end
+function A = kernel_to_toeplitz(kernel_f)
+    L = size(kernel_f, 1)/2;
 
     A = eye(L^3, class(kernel_f));
 

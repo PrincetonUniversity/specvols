@@ -78,18 +78,9 @@ function sig = nufft_adjoint(plan, sig_f)
         sig_f = double(sig_f);
         sig_f = sig_f(:);
 
-        if plan.num_threads ~= 0
-            orig_num_threads = omp_get_max_threads();
-            omp_set_num_threads(plan.num_threads);
-        end
-
         nfft_set_f(plan.nfft_plan_id, sig_f);
         nfft_adjoint(plan.nfft_plan_id);
         sig = nfft_get_f_hat(plan.nfft_plan_id);
-
-        if plan.num_threads ~= 0
-            omp_set_num_threads(orig_num_threads);
-        end
 
         if dims == 2
             sig = permute(reshape(sig, plan.sz), [2 1]);
@@ -101,11 +92,6 @@ function sig = nufft_adjoint(plan, sig_f)
 
         % FINUFFT errors if we give epsilon in single precision.
         epsilon = double(epsilon);
-
-        if plan.num_threads ~= 0
-            orig_num_threads = omp_get_max_threads();
-            omp_set_num_threads(plan.num_threads);
-        end
 
         if dims == 1
             sig = finufft1d1( ...
@@ -127,10 +113,6 @@ function sig = nufft_adjoint(plan, sig_f)
                 sig_f, ...
                 1, epsilon, ...
                 plan.sz(1), plan.sz(2), plan.sz(3));
-        end
-
-        if plan.num_threads ~= 0
-            omp_set_num_threads(orig_num_threads);
         end
 
         sig = reshape(sig, [plan.sz 1]);

@@ -19,14 +19,6 @@
 %    Joakim Anden <janden@flatironinstitute.org>
 
 function im = im_filter(im, filter)
-    if filter.type == filter_type_scalar()
-        if filter.value ~= 1
-            im = filter.value*im;
-        end
-
-        return;
-    end
-
     L = size(im, 1);
 
     [im, sz_roll] = unroll_dim(im, 3);

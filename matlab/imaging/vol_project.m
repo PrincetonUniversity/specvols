@@ -29,20 +29,11 @@ function im = vol_project(vol, rot_matrices)
 
     n = size(rot_matrices, 3);
 
-    [real_mask, stat_mask] = positive_half_space(L*ones(1, 2));
+    pts_rot = rotated_grids(L, rot_matrices);
 
-    pts_rot = rotated_grids(L, rot_matrices, real_mask);
+    pts_rot = reshape(pts_rot, [3 L^2*n]);
 
-    pts_rot = reshape(pts_rot, [3 sum(real_mask(:))*n]);
-
-    vol_f = 1/L*nufft3(vol, pts_rot);
-
-    vol_f = reshape(vol_f, [sum(real_mask(:)) n]);
-
-    im_f = zeros([L^2 n], class(vol));
-
-    im_f(real_mask(:),:) = vol_f;
-    im_f(stat_mask(:),:) = 1/2*im_f(stat_mask(:),:);
+    im_f = 1/L*nufft3(vol, pts_rot);
 
     im_f = reshape(im_f, [L*ones(1, 2) n]);
 
@@ -53,5 +44,5 @@ function im = vol_project(vol, rot_matrices)
 
     im = centered_ifft2(im_f);
 
-    im = 2*real(im);
+    im = real(im);
 end

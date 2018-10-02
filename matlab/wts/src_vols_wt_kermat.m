@@ -41,89 +41,77 @@ function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
 
     L = src.L;
     n = size(params.rots, 3);
-    r = size(wts,1);
-    
+    r = size(wts, 1);
+
+    kermat = zeros([2*L 2*L 2*L r r], vols_wt_est_opt.precision);
+
     vols_wt_est_opt = fill_struct(vols_wt_est_opt, ...
         'precision', 'single', ...
         'batch_size', 512);
 
     batch_ct = ceil(n/vols_wt_est_opt.batch_size);
 
-%     mean_kernel = zeros(2*L*ones(1, 3), mean_est_opt.precision);
-
-    kermat = zeros([2*L 2*L 2*L r r]);
-
     filters_f = eval_filter_grid(params.filters, L);
     sq_filters_f = abs(filters_f).^2;
 
     sq_filters_f = cast(sq_filters_f, vols_wt_est_opt.precision);
 
-    tic
-    disp('kermat')
-    for batch = 1:batch_ct
-        disp(['batch ' num2str(batch) ' t = ' num2str(toc)]);
-        batch_s = (batch-1)*vols_wt_est_opt.batch_size+1;
-        batch_n = min(batch*vols_wt_est_opt.batch_size, n)-batch_s+1;
+    for j = 1:r
+        for k = 1:j
+            for batch = 1:batch_ct
+                batch_s = (batch-1)*vols_wt_est_opt.batch_size+1;
+                batch_n = min(batch*vols_wt_est_opt.batch_size, n)-batch_s+1;
 
-        batch_idx = batch_s:(batch_s+batch_n-1);
+                batch_idx = batch_s:batch_s+batch_n-1;
 
-        batch_slices = zeros([2*L 2*L 2*L batch_n]);
-        
-        parfor k = 1:batch_n
-            pts_rot = rotated_grids(L, params.rots(:,:,k+batch_s-1));
+                pts_rot = rotated_grids(L, params.rots(:,:,batch_idx));
 
-            weights = sq_filters_f(:,:,params.filter_idx(k+batch_s-1)) ...
-                * params.amplitudes(k+batch_s-1)^2;
-%             weights = bsxfun(@times, weights, ...
-%                 reshape(params.amplitudes(batch_idx).^2, [1 1 batch_n]));
+                weights = sq_filters_f(:,:,params.filter_idx(batch_idx));
+                weights = bsxfun(@times, weights, ...
+                    reshape(params.amplitudes(batch_idx).^2, [1 1 batch_n]));
+                % This following line, and the j,k loops are basically the
+                % only thing that distinguish this from the non-wtd
+                % version...
+                weights = bsxfun(@times, weights, ...
+                    reshape(wts(j,batch_idx).*wts(k,batch_idx), [1 1 batch_n]));
 
-            if mod(L, 2) == 0
-                weights(1,:,:) = 0;
-                weights(:,1,:) = 0;
-            end
+                if mod(L, 2) == 0
+                    weights(1,:,:) = 0;
+                    weights(:,1,:) = 0;
+                end
 
-            weights = im_to_vec(weights);
+                weights = im_to_vec(weights);
 
-            pts_rot = reshape(pts_rot, 3, L^2);
-            weights = reshape(weights, L^2, 1);
-            nufft_opt = struct();
-            nufft_opt.num_threads = 1;
-            batch_slices(:,:,:,k) = 1/(L^4) * ...
-                real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
-%             batch_slices(:,:,:,k) =  ...
-%                 real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
-            
-        end
+                pts_rot = reshape(pts_rot, 3, L^2*batch_n);
+                weights = reshape(weights, L^2*batch_n, 1);
 
-        for l = 1:r
-            for m = l:r
-                local_mean = sum(permute(bsxfun(@times,wts(l, ...
-                    batch_idx)'.*wts(m,batch_idx)', permute( ...
-                    batch_slices, [4 1 2 3])),[2 3 4 1]),4);
-                kermat(:,:,:,l,m) = kermat(:,:,:,l,m) + local_mean;
-                kermat(:,:,:,m,l) = kermat(:,:,:,m,l) + local_mean;
+                batch_kernel = 1/(n*L^4)*real(anufft3(weights, ...
+                    pts_rot, 2*L*ones(1, 3)));
+                
+                kermat(:,:,:,j,k) = kermat(:,:,:,j,k) + batch_kernel;
+                if(j~=k)
+                    kermat(:,:,:,k,j) = kermat(:,:,:,k,j) + batch_kernel;
+                end
             end
         end
-%         
-%             mean_kernel = mean_kernel + ...
-%                 1/(n*L^4)*real(anufft3(weights, pts_rot, 2*L*ones(1, 3)));
-%         
     end
 
+    kermat_f = zeros(2*L*ones(1, 3), vols_wt_est_opt.precision);
+
+    %final clean-up
     % Ensure symmetric kernel.
-%     mean_kernel(1,:,:) = 0;
-%     mean_kernel(:,1,:) = 0;
-%     mean_kernel(:,:,1) = 0;
+    for j = 1:r
+        for k = 1:r
+            kermat(1,:,:,j,k) = 0;
+            kermat(:,1,:,j,k) = 0;
+            kermat(:,:,1,j,k) = 0;
 
-    kermat(1,:,:,:,:) = 0;
-    kermat(:,1,:,:,:) = 0;
-    kermat(:,:,1,:,:) = 0;
-
-    % Compute non-centered Fourier transform.
-    kermat_shifted = mdim_ifftshift(kermat, 1:3);
-    kermat_f_complex = fft3(kermat_shifted);
-
+            % Compute non-centered Fourier transform.
+            kermat(:,:,:,j,k) = mdim_ifftshift(kermat(:,:,:,j,k), 1:3);
+            kermat_f(:,:,:,j,k) = fft3(kermat(:,:,:,j,k));
+        end
+    end
     % Kernel is always symmetric in spatial domain and therefore real in
     % Fourier.
-    kermat_f = real(kermat_f_complex);
+    kermat_f = real(kermat_f);
 end

@@ -14,6 +14,11 @@
 % Output
 %    vols: A volume array of size L-by-L-by-L-by-C containing the C Gaussian
 %       blob volumes.
+%
+% Note
+%    The 'gaussian_blob_vols' function depends on the random number state of
+%    'randn' so to obtain reproducible results, its state must be controlled
+%    prior to calling.
 
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
@@ -41,13 +46,11 @@ function vols = gaussian_blob_vols(L, C, K, alpha, precision)
 
     vols = zeros([L*ones(1, 3) C], precision);
 
-    rand_push();
     for k = 1:C
         [Q, D, mu] = gaussian_blobs(K, alpha, precision);
 
         vols(:,:,:,k) = eval_gaussian_blobs(L, Q, D, mu);
     end
-    rand_pop();
 end
 
 function [Q, D, mu] = gaussian_blobs(K, alpha, precision)

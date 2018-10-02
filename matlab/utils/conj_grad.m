@@ -68,6 +68,8 @@ function [x, obj, info] = conj_grad(Afun, b, cg_opt, init)
         'rel_tolerance', eps(class(b)), ...
         'store_iterates', false);
 
+    cg_opt.preconditioner = @(x)(x);
+    
     b_norm = sqrt(sum(abs(b).^2, 1));
 
     r = b;
