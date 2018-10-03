@@ -51,8 +51,8 @@ load_vol_name = []; %default uses save_vol_name
                                             
 % parameters related to the simulation
 
-L = 32;
-n = 1e4;
+L = 16;
+n = 4e3;
 noise_var = 0.1;      %normalized to the average energy of the volumes used
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
@@ -80,7 +80,7 @@ dmap_t = 0;              %time parameter for diffusion maps
 dists_epsilon = 0.2;      %width parameter for kernel used on the distances
 
 % Parameters related to estimation of diffusion volumes
-r = 4;  %also counts for above...
+r = 6;  %also counts for above...
 
 % Parameters related to result checking
 
@@ -146,7 +146,8 @@ sim_params.noise_var = sim_params.noise_var * ...
     (( sum(clean_images(:).^2)) / (sim_params.n * sim_params.L^2)) ;
 sim.noise_var = sim_params.noise_var;
 uncached_src = sim_to_src(sim);
-src = cache_src(uncached_src);
+% src = cache_src(uncached_src);
+src = uncached_src;
 
 disp(['Finished setting up sim, t = ' num2str(toc)]);
 
@@ -197,9 +198,9 @@ end
 disp(['Finished with covariance, t = ' num2str(toc)]);
 
 if eigs_cheat
-    [eigs, lambdas] = sim_eigs(sim);
+    [cov_eigs, lambdas] = sim_eigs(sim);
 else
-    [eigs, lambdas] = mdim_eigs(covar_est, num_cov_coords, 'la');
+    [cov_eigs, lambdas] = mdim_eigs(covar_est, num_cov_coords, 'la');
 end
 
 disp(['Finished with covar eigs, t = ' num2str(toc)]);
@@ -209,7 +210,7 @@ if coords_cheat
     [coords_true_states, residuals] = sim_vol_coords(sim, mean_vol, eigs_true);
     coords = coords_true_states(:,sim.states);
 else
-    coords = src_wiener_coords(src, mean_vol, eigs, lambdas, ...
+    coords = src_wiener_coords(src, mean_vol, cov_eigs, lambdas, ...
         noise_var_est);
 end
 
@@ -220,13 +221,7 @@ disp(['Finished with all covar stuff, t = ' num2str(toc)]);
 %% Diffusion map calculation
 %stupid version now, will replace with smarter Amit M code
 
-n2 = sum(abs(coords).^2, 1);
-
-d2 = bsxfun(@plus, n2, n2') - 2*coords'*coords;
-
-dists = sqrt(max(0, d2));
-
-dmap_coords = dists_to_dmap_coords(dists, dists_epsilon, r, dmap_t);
+dmap_coords = coords_to_laplacian_eigs(coords,epsilon,r);
 
 disp(['Finished with dmap coords, t = ' num2str(toc)]);
 
