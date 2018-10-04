@@ -253,8 +253,8 @@ disp(['Finished calculating error, t = ' num2str(toc)]);
 
 if save_results
     full_save_name = [save_vol_name '_N_' num2str(N) '_n_' ...
-        num2str(n) 'r' num2str(r) '.mat'];
-    save(full_save_name,'uncached_src','dmap_coords','vols_wt_est');
+        num2str(n) '_r_' num2str(r) '_nvar_' num2str(noise_var) '.mat'];
+    save(full_save_name,'uncached_src','dmap_coords','vols_wt_est','noise_var');
 end
 
 disp('All done!');
