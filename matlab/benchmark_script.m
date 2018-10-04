@@ -81,6 +81,8 @@ dists_epsilon = 0.2;      %width parameter for kernel used on the distances
 
 % Parameters related to estimation of diffusion volumes
 % r = 6;  %also counts for above...
+save_results = 1;
+save_results_name = 'results';
 
 % Parameters related to result checking
 
@@ -226,7 +228,7 @@ disp(['Finished with dmap coords, t = ' num2str(toc)]);
 vols_wt_est_opt = struct();
 vols_wt_est_opt = fill_struct(vols_wt_est_opt ,...
         'precision','single',...
-        'batch_size',2^12, ...
+        'batch_size',3.4e4, ...
         'preconditioner','none');
 vols_wt_est_opt.max_iter = 2000;
 vols_wt_est_opt.verbose = 0;
@@ -248,6 +250,12 @@ corr_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'corr');
 fsc_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'fsc');
 
 disp(['Finished calculating error, t = ' num2str(toc)]);
+
+if save_results
+    full_save_name = [save_vol_name '_N_' num2str(N) '_n_' ...
+        num2str(n) 'r' num2str(r) '.mat'];
+    save(full_save_name,'uncached_src','dmap_coords','vols_wt_est');
+end
 
 disp('All done!');
 disp(datetime('now'));
