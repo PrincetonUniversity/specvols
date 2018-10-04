@@ -53,7 +53,7 @@ load_vol_name = []; %default uses save_vol_name
 
 L = 16;
 n = 4e3;
-noise_var = 0.1;      %normalized to the average energy of the volumes used
+noise_var = 0;      %normalized to the average energy of the volumes used
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
 rots = [];          %[] means uniformly drawn from SO(3)
@@ -221,7 +221,7 @@ disp(['Finished with all covar stuff, t = ' num2str(toc)]);
 %% Diffusion map calculation
 %stupid version now, will replace with smarter Amit M code
 
-dmap_coords = coords_to_laplacian_eigs(coords,epsilon,r);
+dmap_coords = coords_to_laplacian_eigs(coords,dists_epsilon,r);
 
 disp(['Finished with dmap coords, t = ' num2str(toc)]);
 
