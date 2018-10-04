@@ -37,23 +37,23 @@ tic
 
 % Now, the parameters relating to the volume
 % 
-num_angles_1 = 16;
+num_angles_1 = 32;
 max_angle_1 = pi/2;
 num_angles_2 = 1;
 max_angle_2 = 0;
 basis_type = 'dirac';
 basis_precompute = 1;
-save_vols = 1;      %save precalculated volumes to save time
+save_vols = 0;      %save precalculated volumes to save time
 save_vol_name = 'pregen_vols';  %will have N and num_angles
                                             %added to the name
-load_vols = 1;      %load precalculated volumes if present
+load_vols = 0;      %load precalculated volumes if present
 load_vol_name = []; %default uses save_vol_name
                                             
 % parameters related to the simulation
 
-N = 16;
-n = 4e3;
-noise_var = 0;      %normalized to the average energy of the volumes used
+% N = 54;
+% n = 1e5;
+% noise_var = 0.1;      %normalized to the average energy of the volumes used
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
 rots = [];          %[] means uniformly drawn from SO(3)
@@ -80,7 +80,7 @@ dmap_t = 0;              %time parameter for diffusion maps
 dists_epsilon = 0.2;      %width parameter for kernel used on the distances
 
 % Parameters related to estimation of diffusion volumes
-r = 6;  %also counts for above...
+% r = 6;  %also counts for above...
 
 % Parameters related to result checking
 
@@ -194,9 +194,9 @@ end
 disp(['Finished with covariance, t = ' num2str(toc)]);
 
 if eigs_cheat
-    [eigs, lambdas] = sim_eigs(sim);
+    [cov_eigs, lambdas] = sim_eigs(sim);
 else
-    [eigs, lambdas] = mdim_eigs(covar_est, num_cov_coords, 'la');
+    [cov_eigs, lambdas] = mdim_eigs(covar_est, num_cov_coords, 'la');
 end
 
 disp(['Finished with covar eigs, t = ' num2str(toc)]);
@@ -206,7 +206,7 @@ if coords_cheat
     [coords_true_states, residuals] = sim_vol_coords(sim, mean_vol, eigs_true);
     coords = coords_true_states(:,sim.states);
 else
-    coords = src_wiener_coords(src, mean_vol, eigs, lambdas, ...
+    coords = src_wiener_coords(src, mean_vol, cov_eigs, lambdas, ...
         noise_var_est);
 end
 
@@ -217,14 +217,7 @@ disp(['Finished with all covar stuff, t = ' num2str(toc)]);
 %% Diffusion map calculation
 %stupid version now, will replace with smarter Amit M code
 
-n2 = sum(abs(coords).^2, 1);
-
-d2 = bsxfun(@plus, n2, n2') - 2*coords'*coords;
-
-dists = sqrt(max(0, d2));
-
-[dmap_coords dmap_evals]= dists_to_dmap_coords(dists, dists_epsilon, ...
-    r, dmap_t);
+dmap_coords = coords_to_laplacian_eigs(coords,dists_epsilon,r);
 
 disp(['Finished with dmap coords, t = ' num2str(toc)]);
 
@@ -235,7 +228,7 @@ vols_wt_est_opt = fill_struct(vols_wt_est_opt ,...
         'precision','single',...
         'batch_size',2^12, ...
         'preconditioner','none');
-vols_wt_est_opt.max_iter = 500;
+vols_wt_est_opt.max_iter = 2000;
 vols_wt_est_opt.verbose = 0;
 vols_wt_est_opt.iter_callback = [];
 vols_wt_est_opt.preconditioner = [];

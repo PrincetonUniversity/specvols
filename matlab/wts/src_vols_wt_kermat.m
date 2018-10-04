@@ -2,13 +2,13 @@
 % source
 %
 % Usage
-%    kermat_f = src_vols_wt_kermat(src, wts, mean_est_opt)
+%    kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
 %
 % Input
 %    src: A source structure containing the images and imaging parameters.
 %       This is typically obtained from `star_to_src` or `sim_to_src`.
 %    wts: a matrix of weights, r x n.
-%    mean_est_opt: A struct containing the fields:
+%    vols_wt_est_opt: A struct containing the fields:
 %          - 'precision': The precision of the kernel. Either 'double' or
 %             'single' (default).
 %          - 'batch_size': The size of the batches in which to compute the
@@ -33,7 +33,7 @@
 %    Amit Halevi <ahalevi@princeton.edu>
 
 function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
-    if nargin < 2 || isempty(vols_wt_est_opt)
+   if nargin < 2 || isempty(vols_wt_est_opt)
         vols_wt_est_opt = struct();
     end
 
@@ -41,9 +41,7 @@ function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
 
     L = src.L;
     n = size(params.rots, 3);
-    r = size(wts, 1);
-
-    kermat = zeros([2*L 2*L 2*L r r], vols_wt_est_opt.precision);
+    r = size(wts,1);
 
     vols_wt_est_opt = fill_struct(vols_wt_est_opt, ...
         'precision', 'single', ...
@@ -51,10 +49,24 @@ function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
 
     batch_ct = ceil(n/vols_wt_est_opt.batch_size);
 
+    kermat = zeros([2*L 2*L 2*L r r], vols_wt_est_opt.precision);
+
     filters_f = eval_filter_grid(params.filters, L);
     sq_filters_f = abs(filters_f).^2;
 
     sq_filters_f = cast(sq_filters_f, vols_wt_est_opt.precision);
+
+    [real_mask, stat_mask] = positive_half_space(L*ones(1, 2));
+
+    if mod(L, 2) == 0
+        sq_filters_f(1,:,:) = 0;
+        sq_filters_f(:,1,:) = 0;
+    end
+
+    sq_filters_f = reshape(sq_filters_f, [L^2 size(sq_filters_f, 3)]);
+    sq_filters_f(stat_mask(:),:) = 1/2*sq_filters_f(stat_mask(:),:);
+
+    sq_filters_f = sq_filters_f(real_mask(:),:);
 
     for j = 1:r
         for k = 1:j
@@ -64,28 +76,20 @@ function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
 
                 batch_idx = batch_s:batch_s+batch_n-1;
 
-                pts_rot = rotated_grids(L, params.rots(:,:,batch_idx));
+                pts_rot = rotated_grids(L, params.rots(:,:,batch_idx), real_mask);
 
-                weights = sq_filters_f(:,:,params.filter_idx(batch_idx));
+                weights = sq_filters_f(:,params.filter_idx(batch_idx));
                 weights = bsxfun(@times, weights, ...
-                    reshape(params.amplitudes(batch_idx).^2, [1 1 batch_n]));
+                    reshape(params.amplitudes(batch_idx).^2, [1 batch_n]));
                 % This following line, and the j,k loops are basically the
                 % only thing that distinguish this from the non-wtd
                 % version...
-                weights = bsxfun(@times, weights, ...
-                    reshape(wts(j,batch_idx).*wts(k,batch_idx), [1 1 batch_n]));
+                weights = bsxfun(@times, weights', wts(j,batch_idx)'.*wts(k,batch_idx)')';
 
-                if mod(L, 2) == 0
-                    weights(1,:,:) = 0;
-                    weights(:,1,:) = 0;
-                end
-
-                weights = im_to_vec(weights);
-
-                pts_rot = reshape(pts_rot, 3, L^2*batch_n);
-                weights = reshape(weights, L^2*batch_n, 1);
-
-                batch_kernel = 1/(n*L^4)*real(anufft3(weights, ...
+                pts_rot = reshape(pts_rot, 3, sum(real_mask(:))*batch_n);
+                weights = reshape(weights, sum(real_mask(:))*batch_n, 1);
+        
+                batch_kernel = 2/(n*L^4)*real(anufft3(weights, ...
                     pts_rot, 2*L*ones(1, 3)));
                 
                 kermat(:,:,:,j,k) = kermat(:,:,:,j,k) + batch_kernel;
