@@ -75,5 +75,12 @@ function im = src_image(src, s, n)
         im = src_image(src.original_src, s, n);
 
         im = im_normalize_bg(im, src.bg_radius, src.do_ramp);
+    elseif src.type == src_type_cropped()
+        im = src_image(src.original_src, s, n);
+
+        rows = src.coords(1):src.coords(3);
+        cols = src.coords(2):src.coords(4);
+
+        im = im(rows,cols,:);
     end
 end
