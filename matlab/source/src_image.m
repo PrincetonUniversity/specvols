@@ -34,13 +34,14 @@ function im = src_image(src, s, n)
             @(file_id)(image_idx(file_idx == file_id)), ...
             unique_file_idx, 'uniformoutput', false);
 
-        for file_id = unique_file_idx(:)'
+        for file_num = 1:numel(unique_file_idx)
+            file_id = unique_file_idx(file_num);
             file_name = src.file_names{file_id};
-            file_s = min(file_image_idx{file_id});
-            file_n = max(file_image_idx{file_id}) - file_s + 1;
+            file_s = min(file_image_idx{file_num});
+            file_n = max(file_image_idx{file_num}) - file_s + 1;
 
             file_im = load_image(file_name, file_s, file_n);
-            file_im = file_im(:,:,file_image_idx{file_id} - file_s + 1);
+            file_im = file_im(:,:,file_image_idx{file_num} - file_s + 1);
 
             im(:,:,file_idx == file_id) = file_im;
         end
