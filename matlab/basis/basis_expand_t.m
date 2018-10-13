@@ -40,6 +40,8 @@ function x = basis_expand_t(basis, v)
         x = fb_basis_expand_t(basis, v);
     elseif basis.type == basis_type_matrix()
         x = matrix_basis_expand_t(basis, v);
+    elseif basis.type == basis_type_ffb()
+        error('Not implemented.');
     else
         error('Invalid basis type.');
     end
