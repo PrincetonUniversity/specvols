@@ -40,6 +40,8 @@ function x = basis_evaluate(basis, v)
         x = fb_basis_evaluate(basis, v);
     elseif basis.type == basis_type_matrix()
         x = matrix_basis_evaluate(basis, v);
+    elseif basis.type == basis_type_ffb()
+        x = ffb_basis_evaluate(basis, v);
     else
         error('Invalid basis type.');
     end

@@ -43,6 +43,8 @@ function v = basis_expand(basis, x)
         v = fb_basis_expand(basis, x);
     elseif basis.type == basis_type_matrix()
         v = matrix_basis_expand(basis, x);
+    elseif basis.type == basis_type_ffb()
+        v = ffb_basis_expand(basis, x);
     else
         error('Invalid basis type.');
     end
