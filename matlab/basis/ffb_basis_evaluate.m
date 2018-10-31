@@ -23,6 +23,8 @@ function x = ffb_basis_evaluate(basis, v)
 end
 
 function x = ffb_basis_evaluate_2d(basis, v)
+    [v, sz_roll] = unroll_dim(v, 2);
+
     n_theta = size(basis.precomp.freqs, 3);
     n_r = size(basis.precomp.freqs, 2);
     n_data = size(v, 2);
@@ -78,10 +80,17 @@ function x = ffb_basis_evaluate_2d(basis, v)
     pf = reshape(pf, [n_r*n_theta n_data]);
     freqs = reshape(basis.precomp.freqs, [2 n_r*n_theta]);
 
-    x = 2*real(anufft2(pf, 2*pi*freqs, basis.sz));
+    x = zeros([basis.sz n_data], class(pf));
+    for ell = 1:n_data
+        x(:,:,ell) = 2*real(anufft2(pf(:,ell), 2*pi*freqs, basis.sz));
+    end
+
+    x = roll_dim(x, sz_roll);
 end
 
 function x = ffb_basis_evaluate_3d(basis, v)
+    [v, sz_roll] = unroll_dim(v, 2);
+
     n_data = size(v, 2);
 
     n_r = size(basis.precomp.radial_wtd, 1);
@@ -166,7 +175,13 @@ function x = ffb_basis_evaluate_3d(basis, v)
     pf = w_even + 1i*w_odd;
     pf = reshape(pf, [n_theta*n_phi*n_r n_data]);
 
-    x = real(anufft3(pf, basis.precomp.fourier_pts, basis.sz));
+    x = zeros([basis.sz n_data], class(pf));
+    for ell = 1:n_data
+        x(:,:,:,ell) = ...
+            real(anufft3(pf(:,ell), basis.precomp.fourier_pts, basis.sz));
+    end
 
     x = cast(x, class(v));
+
+    x = roll_dim(x, sz_roll);
 end

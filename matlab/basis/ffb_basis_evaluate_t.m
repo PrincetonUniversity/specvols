@@ -23,12 +23,17 @@ function v = ffb_basis_evaluate_t(basis, x)
 end
 
 function v = ffb_basis_evaluate_t_2d(basis, x)
+    [x, sz_roll] = unroll_dim(x, numel(basis.sz)+1);
+
     n_theta = size(basis.precomp.freqs, 3);
     n_r = size(basis.precomp.freqs, 2);
     n_data = size(x, 3);
 
     freqs = reshape(basis.precomp.freqs, [2 n_r*n_theta]);
-    pf = nufft2(x, 2*pi*freqs);
+    pf = zeros([size(freqs, 2) n_data], class(x));
+    for ell = 1:n_data
+        pf(:,ell) = nufft2(x(:,:,ell), 2*pi*freqs);
+    end
     pf = reshape(pf, [n_r n_theta n_data]);
 
     % Recover "negative" frequencies from "positive" half plane.
@@ -79,16 +84,23 @@ function v = ffb_basis_evaluate_t_2d(basis, x)
 
         ind_pos = ind_pos + 2*basis.k_max(ell+1);
     end
+
+    v = roll_dim(v, sz_roll);
 end
 
 function v = ffb_basis_evaluate_t_3d(basis, x)
+    [x, sz_roll] = unroll_dim(x, numel(basis.sz)+1);
+
     n_data = size(x, 4);
 
     n_r = size(basis.precomp.radial_wtd, 1);
     n_phi = size(basis.precomp.angular_phi_wtd_even{1}, 1);
     n_theta = size(basis.precomp.angular_theta_wtd, 1);
 
-    pf = nufft3(x, basis.precomp.fourier_pts);
+    pf = zeros([size(basis.precomp.fourier_pts, 2) n_data], class(x));
+    for ell = 1:n_data
+        pf(:,ell) = nufft3(x(:,:,:,ell), basis.precomp.fourier_pts);
+    end
 
     pf = cast(pf, class(x));
 
@@ -166,4 +178,6 @@ function v = ffb_basis_evaluate_t_3d(basis, x)
 
         v(ind,:) = v_ell;
     end
+
+    v = roll_dim(v, sz_roll);
 end
