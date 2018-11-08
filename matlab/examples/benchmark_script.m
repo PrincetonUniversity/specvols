@@ -21,7 +21,7 @@
 %   8. Outputs
 %
 %   Amit Halevi (ahalevi@princeton.edu)
-%   September 29, 2018
+%   November 8, 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Initialize variables and settings
@@ -53,7 +53,7 @@ load_vol_name = []; %default uses save_vol_name
 
 L = 16;
 n = 4e3;
-noise_var = 0;      %normalized to the average energy of the volumes used
+noise_var = 0.1;    %Frankly, not entirely certain how this is normalized
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
 rots = [];          %[] means uniformly drawn from SO(3)
@@ -136,18 +136,12 @@ sim_params = fill_struct(sim_params, ...
         'filter_idx', filter_idx, ...
         'offsets',offsets, ...
         'amplitudes', amplitudes, ...
-        'noise_seed', noise_seed, ...
-        'noise_var', noise_var); 
+        'noise_psd', scalar_filter(noise_var / L^3), ...
+        'noise_seed', noise_seed);
 sim = create_sim(sim_params);
 
-%Normalize noise
-clean_images = sim_clean_image(sim,1,n);
-sim_params.noise_var = sim_params.noise_var * ...
-    (( sum(clean_images(:).^2)) / (sim_params.n * sim_params.L^2)) ;
-sim.noise_var = sim_params.noise_var;
 uncached_src = sim_to_src(sim);
-% src = cache_src(uncached_src);
-src = uncached_src;
+src = cache_src(uncached_src);
 
 disp(['Finished setting up sim, t = ' num2str(toc)]);
 
@@ -159,13 +153,13 @@ else
     mean_est_opt = struct();
     mean_est_opt = fill_struct(mean_est_opt ,...
             'precision','single',...
-            'batch_size',512, ...
+            'batch_size',2^16, ...
             'preconditioner','none');
     mean_est_opt.max_iter = 500;
     mean_est_opt.verbose = 0;
     mean_est_opt.iter_callback = [];
     mean_est_opt.preconditioner = [];
-    mean_est_opt.rel_tolerance = 1e-5;
+    mean_est_opt.rel_tolerance = 1e-3;
     mean_est_opt.store_iterates = true;
     
     mean_vol = estimate_mean(src, basis, mean_est_opt);
@@ -183,16 +177,16 @@ else
     cov_est_opt = struct();
     cov_est_opt = fill_struct(cov_est_opt ,...
             'precision','single',...
-            'batch_size',512, ...
+            'batch_size',2^16, ...
             'preconditioner','none');
     cov_est_opt.max_iter = 50;
     cov_est_opt.verbose = 0;
     cov_est_opt.iter_callback = [];
     cov_est_opt.preconditioner = [];
-    cov_est_opt.rel_tolerance = 1e-5;
+    cov_est_opt.rel_tolerance = 1e-3;
     cov_est_opt.store_iterates = true;
     
-    cov = estimate_covar(src, mean_vol, noise_var_est, basis, cov_est_opt);
+    covar = estimate_covar(src, mean_vol, noise_var_est, basis, cov_est_opt);
 end
 
 disp(['Finished with covariance, t = ' num2str(toc)]);
@@ -200,7 +194,10 @@ disp(['Finished with covariance, t = ' num2str(toc)]);
 if eigs_cheat
     [cov_eigs, lambdas] = sim_eigs(sim);
 else
-    [cov_eigs, lambdas] = mdim_eigs(covar_est, num_cov_coords, 'la');
+    cov_flat = reshape(covar,[N^3 N^3]);
+    cov_flat_sym = 1/2 * (cov_flat + cov_flat');
+    cov_sym_unflat = reshape(cov_flat_sym, size(covar));
+    [cov_eigs, lambdas] = mdim_eigs(cov_sym_unflat, num_cov_coords, 'la');
 end
 
 disp(['Finished with covar eigs, t = ' num2str(toc)]);
@@ -232,7 +229,7 @@ vols_wt_est_opt = fill_struct(vols_wt_est_opt ,...
         'precision','single',...
         'batch_size',2^12, ...
         'preconditioner','none');
-vols_wt_est_opt.max_iter = 500;
+vols_wt_est_opt.max_iter = 50;
 vols_wt_est_opt.verbose = 0;
 vols_wt_est_opt.iter_callback = [];
 vols_wt_est_opt.preconditioner = [];
@@ -247,7 +244,6 @@ disp(['Finished estimating vols, t = ' num2str(toc)]);
 
 %% Check results!
 
-mse_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'mse');
 corr_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'corr');
 fsc_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'fsc');
 

@@ -47,7 +47,10 @@ function normed_vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angl
     
     avg_vol_energy = sum(vols(:).^2);
     if(avg_vol_energy ~= 0)
+        %matlab wants me to replace prod(size(vols)) with numel(vols), but
+        %I think this way is more clear
         normed_vols = vols/sqrt(avg_vol_energy) * sqrt(size(vols,4));
+
     else
         error('Vols have zero energy!');
     end
