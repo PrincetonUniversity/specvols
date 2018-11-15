@@ -12,6 +12,7 @@ addpath(fullfile(path_to_pkg, 'imaging'));
 addpath(fullfile(path_to_pkg, 'install'));
 addpath(fullfile(path_to_pkg, 'io'));
 addpath(fullfile(path_to_pkg, 'nufft'));
+addpath(fullfile(path_to_pkg, 'runs'));
 addpath(fullfile(path_to_pkg, 'simulation'));
 addpath(fullfile(path_to_pkg, 'source'));
 addpath(fullfile(path_to_pkg, 'utils'));
