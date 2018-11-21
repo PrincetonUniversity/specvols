@@ -1,5 +1,8 @@
 matlab/extern/*
 
+data/*
+output/*
+
 .*.m.swp
 
 *.mex*
