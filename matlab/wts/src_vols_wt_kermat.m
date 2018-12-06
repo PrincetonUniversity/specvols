@@ -33,7 +33,7 @@
 %    Amit Halevi <ahalevi@princeton.edu>
 
 function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
-    if nargin < 2 || isempty(vols_wt_est_opt)
+    if nargin < 3 || isempty(vols_wt_est_opt)
         vols_wt_est_opt = struct();
     end
 

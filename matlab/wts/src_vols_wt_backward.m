@@ -30,7 +30,7 @@
 %    Amit Halevi <ahalevi@princeton.edu>
 
 function vols_wt_b_coeff = src_vols_wt_backward(src, basis, wts, mean_est_opt)
-    if nargin < 3 || isempty(mean_est_opt)
+    if nargin < 4 || isempty(mean_est_opt)
         mean_est_opt = struct();
     end
 
