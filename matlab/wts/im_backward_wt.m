@@ -45,7 +45,7 @@ function vol = im_backward_wt(src, im, wts, s)
         %There might be a "better" way of doing this - say by multiplying
         %the filters, but this works well enough for now
         im(:,:,idx_k) = bsxfun(@times,im_filter(im(:,:,idx_k), ...
-            params.filters(k)),reshape(wts(idx_k),[1 1 numel(idx_k)]));
+            params.filters(k)),reshape(wts(idx(idx_k)),[1 1 numel(idx_k)]));
     end
 
     vol = im_backproject(im, params.rots(:,:,idx));
