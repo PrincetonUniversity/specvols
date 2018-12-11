@@ -39,13 +39,15 @@ function vols_coeff = apply_vols_wt_kernel(vols_coeff, kermat_f, basis, ...
         end
     end
 
-    vols = basis_evaluate(basis, vols_coeff);
+    vols_in = basis_evaluate(basis, vols_coeff);
+
+    vols_out = zeros(size(vols_in), class(vols_in));
 
     for k = 1:size(kermat_f,4)
-        vols(:,:,:,k) = sum(conv_vols_wt(vols, permute(kermat_f(:,:,:,k,:),[1 2 3 5 4])), 4);
+        vols_out(:,:,:,k) = sum(conv_vols_wt(vols_in, permute(kermat_f(:,:,:,k,:),[1 2 3 5 4])), 4);
     end
 
-    vols_coeff = basis_evaluate_t(basis, vols);
+    vols_coeff = basis_evaluate_t(basis, vols_out);
     
     if( unflatten_flag )
         vols_coeff = reshape(vols_coeff,[basis.count * r 1]);

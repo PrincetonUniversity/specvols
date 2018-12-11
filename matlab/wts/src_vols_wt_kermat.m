@@ -33,7 +33,7 @@
 %    Amit Halevi <ahalevi@princeton.edu>
 
 function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
-    if nargin < 2 || isempty(vols_wt_est_opt)
+    if nargin < 3 || isempty(vols_wt_est_opt)
         vols_wt_est_opt = struct();
     end
 
@@ -43,11 +43,11 @@ function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
     n = size(params.rots, 3);
     r = size(wts, 1);
 
-    kermat = zeros([2*L 2*L 2*L r r], vols_wt_est_opt.precision);
-
     vols_wt_est_opt = fill_struct(vols_wt_est_opt, ...
         'precision', 'single', ...
         'batch_size', 512);
+
+    kermat = zeros([2*L 2*L 2*L r r], vols_wt_est_opt.precision);
 
     batch_ct = ceil(n/vols_wt_est_opt.batch_size);
 

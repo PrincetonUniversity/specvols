@@ -72,5 +72,7 @@ function [mean_est_coeff, cg_info] = conj_grad_vols_wt(kermat_f, ...
     end
 
     [mean_est_coeff, ~, cg_info] = ...
-        conj_grad(kernel_fun, vols_wt_b_coeff, vols_wt_est_opt);
+        conj_grad(kernel_fun, vols_wt_b_coeff(:), vols_wt_est_opt);
+
+    mean_est_coeff = reshape(mean_est_coeff, [], size(vols_wt_b_coeff, 2));
 end
