@@ -78,7 +78,8 @@ coords_cheat = 0;
 
 % Parameters related to diffusion maps
 dmap_t = 0;              %time parameter for diffusion maps
-dists_epsilon = 0.2;      %width parameter for kernel used on the distances
+%dists_epsilon = 0.2;      %width parameter for kernel used on the distances
+knn_graph_k = 10;
 
 % Parameters related to estimation of diffusion volumes
 r = 16;  %also counts for above...
@@ -231,7 +232,11 @@ disp(['Finished with all covar stuff, t = ' num2str(toc)]);
 %% Diffusion map calculation
 %stupid version now, will replace with smarter Amit M code
 
-dmap_coords = coords_to_laplacian_eigs(coords,dists_epsilon,r);
+%dmap_coords = coords_to_laplacian_eigs(coords,dists_epsilon,r);
+%W = graph_knn(coords, knn_graph_k);
+graph_weights = graph_gaussian_kernel(coords, dists_epsilon);
+graph_laplacian = laplacian(graph_weights, 'normalized');
+[dmap_coords, dmap_evals] = eigs(graph_laplacian, num_coords, 'smallestabs');
 
 disp(['Finished with dmap coords, t = ' num2str(toc)]);
 
