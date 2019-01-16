@@ -36,17 +36,15 @@ function laplacian_eigs = coords_to_laplacian_eigs(coords, epsilon, num_coords)
     d2_thresholded = max(0,d2);
     
     clear d2;
-    
+
+    if nargin < 2 || isempty(epsilon)
+        epsilon = median(d2_thresholded(:)) / 4;
+    end
+  
     dists = sqrt(d2_thresholded);
     
-    clear d2_thresholded;
-    
-    if nargin < 2 || isempty(epsilon)
-        epsilon = median(dists(:).^2) / 4;
-    end
-
-    clear d2
-    
+    clear d2_thresholded
+  
     sq_dists = dists.^2;
     
     clear dists

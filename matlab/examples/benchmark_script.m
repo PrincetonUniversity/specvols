@@ -37,7 +37,7 @@ tic
 
 % Now, the parameters relating to the volume
 % 
-num_angles_1 = 64;
+num_angles_1 = 32;
 max_angle_1 = pi/2;
 num_angles_2 = 1;
 max_angle_2 = 0;
@@ -51,10 +51,10 @@ load_vol_name = []; %default uses save_vol_name
                                             
 % parameters related to the simulation
 
-L = 64;
-down_L = 16;
-n = 1e5;
-noise_var = 0;    %Frankly, not entirely certain how this is normalized
+L = 12;
+down_L = 12;
+n = 2^11-1; 
+noise_var = 0.1;    %Frankly, not entirely certain how this is normalized
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
 rots = [];          %[] means uniformly drawn from SO(3)
@@ -71,17 +71,17 @@ filter_idx = [];    %draw which filter to use uniformly at random
 num_cov_coords = 16;    %number of coordinates to extract from the
                         %covariance PCA thing.  These are used to calculate
                         %the adjacency matrix for the diffusion map
-mean_cheat = 1;
-cov_cheat = 1;
-eigs_cheat = 1;
-coords_cheat = 1;
+mean_cheat = 0;
+cov_cheat = 0;
+eigs_cheat = 0;
+coords_cheat = 0;
 
 % Parameters related to diffusion maps
 dmap_t = 0;              %time parameter for diffusion maps
 dists_epsilon = 0.2;      %width parameter for kernel used on the distances
 
 % Parameters related to estimation of diffusion volumes
-r = 32;  %also counts for above...
+r = 16;  %also counts for above...
 
 
 % Parameters related to result checking
@@ -207,7 +207,7 @@ disp(['Finished with covariance, t = ' num2str(toc)]);
 if eigs_cheat
     [cov_eigs, lambdas] = sim_eigs(down_sim);
 else
-    cov_flat = reshape(covar,[N^3 N^3]);
+    cov_flat = reshape(covar,[down_sim.L^3 down_sim.L^3]);
     cov_flat_sym = 1/2 * (cov_flat + cov_flat');
     cov_sym_unflat = reshape(cov_flat_sym, size(covar));
     [cov_eigs, lambdas] = mdim_eigs(cov_sym_unflat, num_cov_coords, 'la');
@@ -252,9 +252,9 @@ x = reshape(sim.vols(:,:,:,:),[L^3 numel(unique_states)]);
 
 alphas = dmap_coords(1:rs_used_direct,unique_state_line_numbers);
 
-diff_vols_direct_flat = linsolve(alphas',x')';
+%diff_vols_direct_flat = linsolve(alphas',x')';
 
-diff_vols_direct = reshape(diff_vols_direct_flat,[L L L rs_used_direct]);
+%diff_vols_direct = reshape(diff_vols_direct_flat,[L L L rs_used_direct]);
 
 disp(['Finished fitting diff vols, t = ' num2str(toc)]);
 
@@ -263,7 +263,7 @@ disp(['Finished fitting diff vols, t = ' num2str(toc)]);
 vols_wt_est_opt = struct();
 vols_wt_est_opt = fill_struct(vols_wt_est_opt ,...
         'precision','single',...
-        'batch_size',2^12, ...
+        'batch_size',3e4, ...
         'preconditioner','none');
 vols_wt_est_opt.max_iter = 50;
 vols_wt_est_opt.verbose = 0;
@@ -293,6 +293,8 @@ vols_wt_est_opt = vols_wt_est_opt;
 
     kermat_f = sqrt(n^2) * src_vols_wt_kermat(src, wts, vols_wt_est_opt);
 
+    disp(['Finished with kermat, t = ' num2str(toc)]);
+
     precond_kermat_f = [];
 
     if ischar(vols_wt_est_opt.preconditioner)
@@ -309,7 +311,8 @@ vols_wt_est_opt = vols_wt_est_opt;
     end
 
     vols_wt_b_coeff = sqrt(n) * src_vols_wt_backward(src, basis, wts, vols_wt_est_opt);
-
+    
+    disp(['Finished with backproj!, t = ' num2str(toc)]);
 
     [vols_wt_est_coeff, cg_info] = conj_grad_vols_wt(kermat_f, vols_wt_b_coeff, ...
         basis, precond_kermat_f, vols_wt_est_opt);
