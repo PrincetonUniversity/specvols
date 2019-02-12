@@ -60,6 +60,17 @@ function [mean_est_coeff, cg_info] = conj_grad_vols_wt(kermat_f, ...
         vols_wt_est_opt = struct();
     end
 
+    vols_wt_est_opt = fill_struct(vols_wt_est_opt, ...
+        'regularizer', 0);
+
+    if vols_wt_est_opt.regularizer > 0
+        kernel_sz = size(kermat_f, 1)*ones(1, 3);
+        for k = 1:size(kermat_f, 4)
+            kermat_f(:,:,:,k,k) = kermat_f(:,:,:,k,k) + ...
+                vols_wt_est_opt.regularizer*ones(kernel_sz);
+        end
+    end
+
     kernel_fun = @(vols_coeff)( ...
         apply_vols_wt_kernel(vols_coeff, kermat_f, basis, vols_wt_est_opt));
 
