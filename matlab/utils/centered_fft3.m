@@ -14,7 +14,7 @@
 %    Joakim Anden <janden@flatironinstitute.org>
 
 function x = centered_fft3(x)
-    x = ifftshift(ifftshift(ifftshift(x, 1), 2), 3);
+    x = ifftshift3(x);
     x = fft3(x);
-    x = fftshift(fftshift(fftshift(x, 1), 2), 3);
+    x = fftshift3(x);
 end
