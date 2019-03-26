@@ -49,7 +49,8 @@ function L = laplacian(W, laplacian_type)
         case 'randomwalk'
             I = speye(n);
             assert(all(degrees > 0), 'Vertex degrees must all be positive');
-            L = I - bsxfun(@rdivide, W, degrees'); % normalize W's rows
+            degrees
+            L = I - bsxfun(@rdivide, W, degrees); % normalize W's rows
 
         case 'normalized'
             I = speye(n);
@@ -59,7 +60,6 @@ function L = laplacian(W, laplacian_type)
             
         case 'geometric'
             assert(all(degrees > 0), 'Vertex degrees must all be positive');
-            %W_new = (W./degrees)./degrees';
             W_new = bsxfun(@rdivide, bsxfun(@rdivide, W, degrees), degrees');
             L = laplacian(W_new, 'randomwalk');
 
