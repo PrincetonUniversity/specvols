@@ -20,6 +20,7 @@ addpath(fullfile(path_to_pkg, 'graph'));
 addpath(fullfile(path_to_pkg, 'datagen'));
 addpath(fullfile(path_to_pkg, 'utils', 'mex'));
 addpath(fullfile(path_to_pkg, 'wts'));
+addpath(fullfile(path_to_pkg, 'figuresgen'));
 
 if exist(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'))
     addpath(fullfile(path_to_pkg, 'extern', 'nufftall-1.33'));
