@@ -91,14 +91,9 @@ function kermat_f = src_vols_wt_kermat(src, wts, vols_wt_est_opt)
                 pts_rot = reshape(pts_rot, 3, sum(real_mask(:))*batch_n);
                 weights = reshape(weights, sum(real_mask(:))*batch_n, 1);
 
-                disp(batch_n)
-                disp(size(weights))
-
-                tmr=tic;
                 batch_kernel = 2/(n*L^4)*real(anufft3(weights, ...
                     pts_rot, 2*L*ones(1, 3)));
-                toc(tmr);
-                
+
                 kermat(:,:,:,j,k) = kermat(:,:,:,j,k) + batch_kernel;
                 if(j~=k)
                     kermat(:,:,:,k,j) = kermat(:,:,:,k,j) + batch_kernel;
