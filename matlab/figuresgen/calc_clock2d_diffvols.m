@@ -1,4 +1,4 @@
-n = 16384;
+n = 2^15;
 L = 127;
 r = 17;
 GAUSSIAN_KERNEL_SIGMA = 200;
