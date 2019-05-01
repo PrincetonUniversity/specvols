@@ -72,9 +72,9 @@ num_cov_coords = 16;    %number of coordinates to extract from the
                         %covariance PCA thing.  These are used to calculate
                         %the adjacency matrix for the diffusion map
 mean_cheat = 0;
-cov_cheat = 0;
+cov_cheat = 1;
 eigs_cheat = 0;
-coords_cheat = 0;
+coords_cheat = 1;
 
 % Parameters related to diffusion maps
 dmap_t = 0;              %time parameter for diffusion maps
@@ -234,8 +234,9 @@ disp(['Finished with all covar stuff, t = ' num2str(toc)]);
 
 %dmap_coords = coords_to_laplacian_eigs(coords,dists_epsilon,r);
 %W = graph_knn(coords, knn_graph_k);
-graph_weights = graph_gaussian_kernel(coords, dists_epsilon);
+graph_weights = graph_gaussian_kernel(coords', dists_epsilon);
 graph_laplacian = laplacian(graph_weights, 'normalized');
+graph_laplacian = (graph_laplacian + graph_laplacian')/2; % Make sure it is exactly symmetric
 [dmap_coords, dmap_evals] = eigs(graph_laplacian, num_coords, 'smallestabs');
 
 disp(['Finished with dmap coords, t = ' num2str(toc)]);
