@@ -18,7 +18,6 @@
 %       Normalized volumes, projected to Fourier-Bessel basis
 
 function normed_vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, basis)
-
     path_to_source_file = fileparts(mfilename('fullpath'));
     
     fixed_map = fullfile(path_to_source_file, '../../data/FakeKvMap/FakeKvMapAlphaOne.mrc');
@@ -56,11 +55,3 @@ function normed_vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angl
     end
 end
 
-function results = downsampled_z_rotations(L, volume, max_angle, num_angles)
-    results = zeros(L, L, L, num_angles);
-    for i=1:num_angles
-        angle = -(i-1)*(max_angle/num_angles);
-        rotated = vol_rotate_z(volume, angle);
-        results(:,:,:,i) = vol_downsample(rotated, L);
-    end
-end
