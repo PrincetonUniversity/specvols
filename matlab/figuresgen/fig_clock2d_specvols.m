@@ -22,7 +22,7 @@ imwrite(mean_vol, meanvol_filename);
 specvol_filename = fullfile(figpath, SPECVOLS_FIGNAME);
 fprintf('Saving to %s\n', specvol_filename);
 assert(mod(clock2d.r,2)==1);
-imwrite(imtile(specvols_without_mean, 'GridSize', [(clock2d.r-1)/2 2])', specvol_filename);
+imwrite(imtile(specvols_without_mean(:,:,1:clock2d.NUM_SPECVOLS_TO_DISPLAY-1), 'GridSize', [(clock2d.NUM_SPECVOLS_TO_DISPLAY-1)/2 2])', specvol_filename);
 
 toc;
 %set(gcf,'Units','centimeters');
