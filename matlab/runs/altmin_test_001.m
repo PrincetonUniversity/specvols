@@ -2,7 +2,10 @@
 % This script is a proof-of-concept for the alternating minimization algorithm.
 % It sets up a heterogeneity problem, finds the true weights, and attempts to
 % find the correct volume space by alternating minimization on that space and
-% the weights.
+% the weights. We also test the robustness of the method by perturbing the
+% true weights with some noise and running the method from there. All
+% comparisons are based on computing the cosine of the maximum principal angle
+% between the subspaces (somewhat abusively referred to as “correlation”).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 n = 1024;
