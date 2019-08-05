@@ -12,7 +12,10 @@
 %             keeping the filenames (default false).
 %          - pixel_size: the pixel size of the images in angstroms (default 1),
 %          - B: the envelope decay of the CTF in inverse square angstrom
-%             (default 0),
+%             (default 0), and
+%          - model_star: a struct containing the model star file, which
+%             allows for extracting amplitude correction information,
+%             among other things (default empty).
 %       These parameters are not given in the STAR file itself and so need to
 %       be supplied.
 %
