@@ -1,10 +1,12 @@
 % LOAD_STAR Read STAR file
 %
 % Usage
-%    data = load_star(filename);
+%    data = load_star(filename, data_blocks);
 %
 % Input
 %    filename: The filename of the STAR file to read.
+%    data_blocks: A cell array of data blocks to load from file. If empty, loads
+%       all the blocks (default empty).
 %
 % Output
 %    data: A struct containing all the data blocks in the STAR file. Each data
@@ -15,7 +17,11 @@
 % Author
 %    Joakim Anden <janden@flatironinstitute.org>
 
-function data = load_star(filename)
+function data = load_star(filename, data_blocks)
+    if nargin < 2 || isempty(data_blocks)
+        data_blocks = [];
+    end
+
     fid = fopen(filename, 'r');
 
     % Name of the current data block.
@@ -38,7 +44,9 @@ function data = load_star(filename)
 
             star_list = load_star_struct(fid);
 
-            data = setfield(data, name, star_list);
+            if isempty(data_blocks) || ismember(name, data_blocks)
+                data = setfield(data, name, star_list);
+            end
         end
 
         line = fgetl(fid);
@@ -59,7 +67,15 @@ function data = load_star(filename)
 
             star_loop = load_star_loop(fid);
 
-            data = setfield(data, name, star_loop);
+            if isempty(data_blocks) || ismember(name, data_blocks)
+                data = setfield(data, name, star_loop);
+            end
+        end
+
+        if ~isempty(data_blocks) && ...
+            numel(fieldnames(data)) == numel(data_blocks)
+
+            break;
         end
     end
 
