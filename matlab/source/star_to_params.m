@@ -8,7 +8,10 @@
 %    star_opt: An options structure with the fields:
 %          - pixel_size: the pixel size of the images in angstroms (default 1),
 %          - B: the envelope decay of the CTF in inverse square angstrom
-%             (default 0),
+%             (default 0), and
+%          - model_star: a struct containing the model star file, which
+%             allows for extracting amplitude correction information,
+%             among other things (default empty).
 %       These parameters are not given in the STAR file itself and so need to
 %       be supplied.
 %
@@ -26,7 +29,8 @@ function params = star_to_params(star, star_opt)
 
     star_opt = fill_struct(star_opt, ...
         'pixel_size', 1, ...
-        'B', 0);
+        'B', 0, ...
+        'model_star', []);
 
     if ~isstruct(star)
         error(['Input `star` must be a STAR file struct obtained from ' ...
@@ -92,7 +96,14 @@ function params = star_to_params(star, star_opt)
 
     params.offsets = [origin_x(:)'; origin_y(:)'];
 
-    params.amplitudes = ones(1, n);
+    if isempty(star_opt.model_star)
+        params.amplitudes = ones(1, n);
+    else
+        group_idx = [star.rlnGroupNumber];
+        model_groups = star_opt.model_star.model_groups;
+
+        params.amplitudes = [model_groups(group_idx).rlnGroupScaleCorrection];
+    end
 
     params.state = class;
 end

@@ -2,6 +2,7 @@
 L = clock2d.L;
 n = clock2d.n;
 r = clock2d.r;
+GAUSSIAN_BLUR_SIGMA = clock2d.GAUSSIAN_BLUR_SIGMA;
 NOISE_SIGMA = clock2d.NOISE_SIGMA;
 GAUSSIAN_KERNEL_SIGMA = 0.5*sqrt(L*L)*NOISE_SIGMA;
 OUTPUT_MAT_FILENAME = clock2d.OUTPUT_MAT_FILENAME;
@@ -19,11 +20,11 @@ angles = 2*pi*rand(n,1);
 angles = sort(angles);
 
 tic;
-fprintf('Generating clock face vectors');
+fprintf('Generating clock face vectors... ');
 clocks_clean = zeros(n, L^2);
 clocks_noisy = zeros(n, L^2);
 for i=1:n
-    clock_2D_hand = gen_clock_hand_2d(L, angles(i));
+    clock_2D_hand = gen_clock_hand_2d(L, angles(i), GAUSSIAN_BLUR_SIGMA);
     clock_2D = 0.4*clock_2D_body + clock_2D_hand;
     flattenedclock = reshape(clock_2D, 1, L^2);
     clocks_clean(i,:) = flattenedclock;
