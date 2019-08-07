@@ -371,7 +371,6 @@ vols_wt_est_opt = vols_wt_est_opt;
     time_keeper(time_idx) = toc;time_idx = time_idx + 1;
 
     kermat_diag = zeros(size(kermat));
-    for k = 1:
     
     for r_used = r_used_min:r_used_max
         [vols_wt_est_coeff,cg_info]=conj_grad_vols_wt(kermat_f(:,:,:,1:r_used,1:r_used)...
