@@ -30,6 +30,8 @@
 % First, we addpath!
 
 addpath_het3d;
+omp_set_num_threads(max(omp_get_max_threads,16));
+
 
 disp('Let''s get started!');
 disp(datetime('now'));
@@ -37,24 +39,19 @@ tic
 
 % Now, the parameters relating to the volume
 % 
-num_angles_1 = 32;
+num_angles_1 = 108;
 max_angle_1 = pi/2;
 num_angles_2 = 1;
 max_angle_2 = 0;
 basis_type = 'dirac';
 basis_precompute = 0;
-save_vols = 0;      %save precalculated volumes to save time
-save_vol_name = 'pregen_vols';  %will have L and num_angles
-                                            %added to the name
-load_vols = 0;      %load precalculated volumes if present
-load_vol_name = []; %default uses save_vol_name
-                                            
+
 % parameters related to the simulation
 
-L = 12;
+L = 108;
 down_L = 12;
-n = 2^11-1; 
-noise_var = 0.1;    %Frankly, not entirely certain how this is normalized
+n = 1e4; 
+noise_var = 3;    %Frankly, not entirely certain how this is normalized
 noise_seed = 0;     %for reproducibility
 offsets = zeros(2,n); %currently unused
 rots = [];          %[] means uniformly drawn from SO(3)
@@ -72,9 +69,9 @@ num_cov_coords = 16;    %number of coordinates to extract from the
                         %covariance PCA thing.  These are used to calculate
                         %the adjacency matrix for the diffusion map
 mean_cheat = 0;
-cov_cheat = 1;
+cov_cheat = 0;
 eigs_cheat = 0;
-coords_cheat = 1;
+coords_cheat = 0;
 
 % Parameters related to diffusion maps
 dmap_t = 0;              %time parameter for diffusion maps
@@ -100,35 +97,8 @@ else
 end
 down_basis = fb_basis(down_L * ones(1,3));
 
-if load_vols
-    if exist(load_vol_name)
-        full_load_name = [load_vol_name '_L_' num2str(L) '_num_ang_1_' ...
-            num2str(num_angles_1) '_num_ang_2_' num2str(num_angles_2) '.mat'];
-    else
-        full_load_name = [save_vol_name '_L_' num2str(L) '_num_ang_1_' ...
-            num2str(num_angles_1) '_num_ang_2_' num2str(num_angles_2) '.mat'];
-    end
-    if exist(full_load_name,'file');
-        load(full_load_name)
-    else
-        vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, basis);
-        down_vols = gen_fakekv_volumes(down_L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, down_basis);
-
-    end
-else
-%     vols = generate_vols(L,num_angles_1,num_angles_2,basis);
-    vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, basis);
-    down_vols = gen_fakekv_volumes(down_L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, down_basis);
-
-end
-
-if save_vols
-    full_save_name = [save_vol_name '_L_' num2str(L) '_num_ang_1_' ...
-        num2str(num_angles_1) '_num_ang_2_' num2str(num_angles_2) '.mat'];
-    if ~exist(save_vol_name,'file')
-        save(full_save_name','vols');
-    end
-end
+vols = gen_fakekv_volumes(L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, basis);
+down_vols = gen_fakekv_volumes(down_L, max_angle_1, num_angles_1, max_angle_2, num_angles_2, down_basis);
 
 disp(['Finished with volumes, t = ' num2str(toc)]);
 %% Set up sim object
@@ -176,7 +146,7 @@ else
     mean_est_opt.rel_tolerance = 1e-3;
     mean_est_opt.store_iterates = true;
     
-    mean_vol = estimate_mean(down_src, basis, mean_est_opt);
+    mean_vol = estimate_mean(down_src, down_basis, mean_est_opt);
 end
 
 disp(['Finished with mean, t = ' num2str(toc)]);
@@ -230,39 +200,37 @@ disp(['Finished with covar coords, t = ' num2str(toc)]);
 disp(['Finished with all covar stuff, t = ' num2str(toc)]);
 
 %% Diffusion map calculation
-%stupid version now, will replace with smarter Amit M code
 
-%dmap_coords = coords_to_laplacian_eigs(coords,dists_epsilon,r);
-%W = graph_knn(coords, knn_graph_k);
-graph_weights = graph_gaussian_kernel(coords', dists_epsilon);
+graph_weights = graph_knn(coords', knn_graph_k);
 graph_laplacian = laplacian(graph_weights, 'normalized');
 graph_laplacian = (graph_laplacian + graph_laplacian')/2; % Make sure it is exactly symmetric
-[dmap_coords, dmap_evals] = eigs(graph_laplacian, num_coords, 'smallestabs');
+[dmap_coords, dmap_evals] = eigs(graph_laplacian, r, 'smallestabs');
+dmap_coords = dmap_coords';
 
 disp(['Finished with dmap coords, t = ' num2str(toc)]);
 
 %% "Direct fitting" of diffusion volumes!
-
-unique_states = unique(sim.states); 
-
-unique_state_line_numbers = zeros(size(unique_states));
-
-for unique_state_index = 1:length(unique_states)
-    state_places = find(sim.states == unique_states(unique_state_index));
-    unique_state_line_numbers(unique_state_index) = state_places(1);
-end
-
-rs_used_direct = r;
-
-x = reshape(sim.vols(:,:,:,:),[L^3 numel(unique_states)]); 
-
-alphas = dmap_coords(1:rs_used_direct,unique_state_line_numbers);
-
+% 
+% unique_states = unique(sim.states); 
+% 
+% unique_state_line_numbers = zeros(size(unique_states));
+% 
+% for unique_state_index = 1:length(unique_states)
+%     state_places = find(sim.states == unique_states(unique_state_index));
+%     unique_state_line_numbers(unique_state_index) = state_places(1);
+% end
+% 
+% rs_used_direct = r;
+% 
+% x = reshape(sim.vols(:,:,:,:),[L^3 numel(unique_states)]); 
+% 
+% alphas = dmap_coords(1:rs_used_direct,unique_state_line_numbers);
+% 
 %diff_vols_direct_flat = linsolve(alphas',x')';
-
+% 
 %diff_vols_direct = reshape(diff_vols_direct_flat,[L L L rs_used_direct]);
-
-disp(['Finished fitting diff vols, t = ' num2str(toc)]);
+% 
+% disp(['Finished fitting diff vols, t = ' num2str(toc)]);
 
 %% Time to estimate vols!
 
@@ -332,10 +300,14 @@ disp(['Finished estimating vols, t = ' num2str(toc)]);
 
 %% Check results!
 
-corr_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'corr');
-fsc_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'fsc');
+%corr_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'corr');
+%fsc_err = check_recon_wts(uncached_src,dmap_coords,vols_wt_est,'fsc');
 
 disp(['Finished calculating error, t = ' num2str(toc)]);
+
+save(['/scratch/ahalevi/het_results/benchmark_new_' datestr(datetime('now'))... 
+    'noise_' num2str(noise_var) '.mat'],'noise_var','r','coords','cov_eigs','dmap_coords',...
+    'uncached_src','-v7.3');
 
 disp('All done!');
 disp(datetime('now'));

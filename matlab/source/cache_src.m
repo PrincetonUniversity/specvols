@@ -38,7 +38,6 @@ function src = cache_src(original_src, cache_opt)
         batch_n = min(batch*cache_opt.batch_size, src.n)-batch_s+1;
 
         batch_idx = batch_s:batch_s+batch_n-1;
-
         src.images(:,:,batch_idx) = src_image(original_src, batch_s, batch_n);
     end
 

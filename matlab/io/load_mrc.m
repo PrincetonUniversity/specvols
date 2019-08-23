@@ -30,7 +30,7 @@ function [x, header] = load_mrc(filename, start, num)
     if nargin < 3 || isempty(num)
         num = Inf;
     end
-
+    
     mrc = mrc_open(filename);
 
     mrc_skip(mrc, start-1);

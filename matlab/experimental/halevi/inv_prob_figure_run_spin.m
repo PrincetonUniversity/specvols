@@ -35,6 +35,8 @@ disp('Let''s get started!');
 disp(datetime('now'));
 tic
 
+output_dir = fullfile(pkg_root(), 'output');
+
 max_threads = omp_get_max_threads;
 threads_to_use = min(max_threads,16);
 omp_set_num_threads(threads_to_use);
@@ -409,8 +411,8 @@ vols_wt_est_opt = vols_wt_est_opt;
             time_keeper_desc{time_idx} = ['Est, noise_idx = ' num2str(noise_idx) ', r_used = ' num2str(r_used)];
             time_keeper(time_idx) = toc;time_idx = time_idx + 1;
         end
-%     save(['/scratch/ahalevi/het_results/inv_prob_figure_run_' datestr(datetime('now'))...
-%     '.mat'],'noise_levels','r','coords','cov_eigs','dmap_coords','vols_wt_est_all',...
+%     save(fullfile(output_dir, ['inv_prob_figure_run_' datestr(datetime('now'))...
+%     '.mat']),'noise_levels','r','coords','cov_eigs','dmap_coords','vols_wt_est_all',...
 %     'uncached_src','vols','time_keeper','time_keeper_desc','-v7.3');
     end
 %%End vols_wt_est_unwrapped
@@ -422,8 +424,8 @@ disp(['Finished estimating vols, t = ' num2str(toc)]);
 time_keeper_desc{time_idx} = ['Finished estimating vols!'];
 time_keeper(time_idx) = toc;time_idx = time_idx + 1;
 
-% save(['/scratch/ahalevi/het_results/inv_prob_figure_run_' datestr(datetime('now'))...
-%     '.mat'],'noise_levels','r','coords','cov_eigs','dmap_coords','vols_wt_est_all',...
+% save(fullfile(output_dir, ['inv_prob_figure_run_' datestr(datetime('now'))...
+%     '.mat']),'noise_levels','r','coords','cov_eigs','dmap_coords','vols_wt_est_all',...
 %     'uncached_src','vols','time_keeper','time_keeper_desc','-v7.3');
 disp('All done!');
 disp(datetime('now'));

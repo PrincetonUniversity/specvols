@@ -29,6 +29,11 @@ function vols_coeff = apply_vols_wt_kernel(vols_coeff, kermat_f, basis, ...
 
     unflatten_flag = 0;
 
+    if( isfield(vols_wt_est_opt )
+
+    end
+
+    
     if(size(vols_coeff,1) ~= basis.count)
         r = size(vols_coeff,1) / basis.count;
         if( rem(r,1) == 0)
@@ -46,7 +51,7 @@ function vols_coeff = apply_vols_wt_kernel(vols_coeff, kermat_f, basis, ...
     for k = 1:size(kermat_f,4)
         vols_out(:,:,:,k) = sum(conv_vols_wt(vols_in, permute(kermat_f(:,:,:,k,:),[1 2 3 5 4])), 4);
     end
-
+    
     vols_coeff = basis_evaluate_t(basis, vols_out);
     
     if( unflatten_flag )
