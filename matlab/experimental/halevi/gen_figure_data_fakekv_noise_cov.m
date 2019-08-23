@@ -55,7 +55,7 @@ covs_all = cell(length(noise_levels));
 
 % Now, the parameters relating to the volume
 % 
-num_angles_1 = 32;
+num_angles_1 = 108;
 max_angle_1 = pi/2;
 num_angles_2 = 1;
 max_angle_2 = 0;
@@ -168,9 +168,9 @@ time_keeper = zeros(1,10000);
 time_keeper_desc = cell(1,10000);
 time_idx = 1;
 
-noise_idx_min = 1
-noise_idx_max = 1
-r_used_min = 1
+noise_idx_min = 1;
+noise_idx_max = 1;
+r_used_min = 1;
 r_used_max = min(r,16);
 
 for noise_idx = noise_idx_min:noise_idx_max
@@ -239,7 +239,7 @@ else
     cov_sym_unflat = reshape(cov_flat_sym, size(covar));
     [cov_eigs, lambdas] = mdim_eigs(cov_sym_unflat, num_cov_coords, 'la');
 end
-diag(lambdas)'
+diag(lambdas)';
 cov_eigs_all{noise_idx} = cov_eigs;
 lambdas_all{noise_idx} = lambdas;
 covs_all{noise_idx} = covar;
@@ -366,9 +366,6 @@ vols_wt_est_opt = vols_wt_est_opt;
     time_keeper_desc{time_idx} = ['backproj, noise_idx = ' num2str(noise_idx)];
     time_keeper(time_idx) = toc;time_idx = time_idx + 1;
 
-    kermat_diag = zeros(size(kermat));
-    for k = 1:
-    
     for r_used = r_used_min:r_used_max
         [vols_wt_est_coeff,cg_info]=conj_grad_vols_wt(kermat_f(:,:,:,1:r_used,1:r_used)...
             , vols_wt_b_coeff(:,1:r_used),basis, precond_kermat_f, vols_wt_est_opt);
@@ -393,8 +390,5 @@ disp(['Finished estimating vols, t = ' num2str(toc)]);
 time_keeper_desc{time_idx} = ['Finished estimating vols!'];
 time_keeper(time_idx) = toc;time_idx = time_idx + 1;
 
-% save(['/scratch/ahalevi/het_results/inv_prob_figure_run_' datestr(datetime('now'))...
-    '.mat'],'noise_levels','r','coords','cov_eigs','dmap_coords','vols_wt_est_all',...
-    'uncached_src','vols','time_keeper','time_keeper_desc','-v7.3');
 disp('All done!');
 disp(datetime('now'));
