@@ -51,8 +51,6 @@ max_shifts_y = 16;
 
 shift_mask = ones(num_shifts_x,num_shifts_y);
 
-basis_type = 'dirac';
-basis_precompute = 0;
 % parameters related to the simulation
 
 L = 108;
@@ -93,7 +91,7 @@ r = 8;  %also counts for above...
 disp(['Finished initializing, t = ' num2str(toc)]);
                     
 %% Set up test volumes
-uncomputed_basis = dirac_basis(L*ones(1,3),[]);
+uncomputed_basis = fb_basis(L*ones(1,3),[]);
 if basis_precompute
     basis = precompute_basis(uncomputed_basis);
 else

@@ -397,7 +397,7 @@ disp(['Finished estimating vols, t = ' num2str(toc)]);
 %
 
 time_keeper_desc{time_idx} = ['Finished estimating vols!'];
-time_keeper(time_idx) = toc;time_idx = time_idx + 1;
+time_keeper(time_idx) = toc;time_idx = time_idx + 1;z`
 
 save(fullfile(output_dir, ['inv_prob_figure_run_' datestr(datetime('now'))...
     '.mat']),'noise_levels','r','coords','cov_eigs','dmap_coords','vols_wt_est_all',...
