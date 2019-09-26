@@ -31,6 +31,8 @@ function vols_coeff = apply_vols_wt_kernel(vols_coeff, kermat_f, basis, ...
     
     if( ~isfield(vols_wt_est_opt,'mask'))
         mask = ones(basis.sz);
+    else
+        mask = vols_wt_est_opt.mask;
     end
     
     if(size(vols_coeff,1) ~= basis.count)
@@ -48,10 +50,11 @@ function vols_coeff = apply_vols_wt_kernel(vols_coeff, kermat_f, basis, ...
     vols_out = zeros(size(vols_in), class(vols_in));
 
     for k = 1:size(kermat_f,4)
-        vols_out(:,:,:,k) = sum(bsxfun(@times,mask, ...
-            conv_vols_wt(vols_in, permute(kermat_f(:,:,:,k,:),[1 2 3 5 4]))), 4);
+        vols_out(:,:,:,k) = bsxfun(@times,mask,sum( ...
+            conv_vols_wt(vols_in, permute(kermat_f(:,:,:,k,:),[1 2 3 5 4])), 4));
+%         vols_out(:,:,:,k) = sum( ...
+%             conv_vols_wt(vols_in, permute(kermat_f(:,:,:,k,:),[1 2 3 5 4])), 4);
     end
-    
     vols_coeff = basis_evaluate_t(basis, vols_out);
     
     if( unflatten_flag )

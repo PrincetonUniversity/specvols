@@ -91,12 +91,7 @@ r = 8;  %also counts for above...
 disp(['Finished initializing, t = ' num2str(toc)]);
                     
 %% Set up test volumes
-uncomputed_basis = fb_basis(L*ones(1,3),[]);
-if basis_precompute
-    basis = precompute_basis(uncomputed_basis);
-else
-    basis = uncomputed_basis;
-end
+basis = ffb_basis(L*ones(1,3),[]);
 down_basis = fb_basis(down_L * ones(1,3));
 
 angles = 0:(1/num_angles * max_angle):(max_angle * (num_angles-1)/num_angles);
