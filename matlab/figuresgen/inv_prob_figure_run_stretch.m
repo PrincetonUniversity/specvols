@@ -39,8 +39,6 @@ disp('Let''s get started!');
 disp(datetime('now'));
 tic
 
-output_dir = fullfile(pkg_root(), 'output');
-
 max_threads = omp_get_max_threads;
 threads_to_use = min(max_threads,16);
 omp_set_num_threads(threads_to_use);
@@ -76,17 +74,7 @@ shifts_x = x_locs - ceil(num_shifts_x/2);
 shifts_y = y_locs - ceil(num_shifts_y/2);
 
 shifts = [shifts_x(:) shifts_y(:)]';
-
-basis_type = 'dirac';
-basis_precompute = 0;
-save_vols = 0;      %save precalculated volumes to save time
-save_vol_name = 'pregen_vols';  %will have L and num_angles
-                                           %added to the name
-load_vols = 0;      %load precalculated volumes if present
-load_vol_name = []; %default uses save_vol_name
-
-
-                                           
+  
 % parameters related to the simulation
 
 L = 108;

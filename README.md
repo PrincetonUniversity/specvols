@@ -1,10 +1,6 @@
-# SPECVOLS: A repository accompanying the paper "Cryo-EM reconstruction of
-  continuous heterogeneity by Laplacian spectral volumes",
-  https://arxiv.org/abs/1907.01898
+## SPECVOLS: A repository accompanying the paper "Cryo-EM reconstruction of continuous heterogeneity by Laplacian spectral volumes", https://arxiv.org/abs/1907.01898
 
-### Amit Moscovich (Princeton PACM), Amit Halevi (Princeton PACM), Joakim 
-Andén (Flatiron Institute, Simons Foundation), and Amit Singer (Princeton
-Math and PACM)
+### Amit Moscovich (Princeton PACM), Amit Halevi (Princeton PACM), Joakim Andén (Flatiron Institute, Simons Foundation), and Amit Singer (Princeton Math and PACM)
 
 Corresponding author Amit M, amit@moscovich.org
 
